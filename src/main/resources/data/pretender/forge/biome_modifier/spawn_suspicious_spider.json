@@ -1,0 +1,16 @@
+{
+  "type": "forge:add_spawns",
+  "biomes": [
+    "minecraft:desert",
+    "minecraft:forest",
+    "minecraft:swamp",
+    "minecraft:plains",
+    "minecraft:taiga"
+  ],
+  "spawners": {
+    "type": "pretender:suspicious_spider",
+    "weight": 150,
+    "minCount": 0,
+    "maxCount": 1
+  }
+}
