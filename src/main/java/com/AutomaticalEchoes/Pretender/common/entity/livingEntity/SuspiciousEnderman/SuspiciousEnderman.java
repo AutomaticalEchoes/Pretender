@@ -354,8 +354,8 @@ public class SuspiciousEnderman extends Monster {
         return blockpos$mutableblockpos;
     }
 
-    public void startJokeWith(Player player, @Nullable Integer structuredDataId){
-        this.setJokingTarget(player);
+    public void startJokeWith(LivingEntity entity, @Nullable Integer structuredDataId){
+        this.setJokingTarget(entity);
         this.doJoke.startWith(structuredDataId);
     }
 
