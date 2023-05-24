@@ -241,31 +241,36 @@ public class SuspiciousSlime extends Mob implements Enemy {
     @Override
     public void remove(RemovalReason p_149847_) {
         int i = this.getSize();
-        if (!this.level.isClientSide && i > 1 && !this.container.isEmpty() && this.isDeadOrDying()) {
-            Component component = this.getCustomName();
+        if (!this.level.isClientSide && i > 1 && this.isDeadOrDying()) {
+
             boolean flag = this.isNoAi();
             float f = (float)i / 4.0F;
             int j = i / 2;
-            int k = 2 + this.random.nextInt(3);
+            int k = 1 + this.random.nextInt(1);
             for(int l = 0; l < k; ++l) {
                 float f1 = ((float)(l % 2) - 0.5F) * f;
                 float f2 = ((float)(l / 2) - 0.5F) * f;
-                SuspiciousSlime slime = EntityRegister.SUSPICIOUS_SLIME.get().create(this.level);
-                if (this.isPersistenceRequired()) {
-                    slime.setPersistenceRequired();
-                }
-                setContainer(this.getContainer());
-                slime.setCustomName(component);
-                slime.setNoAi(flag);
-                slime.setInvulnerable(this.isInvulnerable());
-                slime.setSize(j, true);
-                slime.moveTo(this.getX() + (double)f1, this.getY() + 0.5D, this.getZ() + (double)f2, this.random.nextFloat() * 360.0F, 0.0F);
-                this.level.addFreshEntity(slime);
+                tranSmall(j,f1,f2);
             }
         }
 
         this.setRemoved(p_149847_);
         this.invalidateCaps();
+    }
+
+    public void tranSmall(int size ,float f1,float f2){
+        Component component = this.getCustomName();
+        SuspiciousSlime slime = EntityRegister.SUSPICIOUS_SLIME.get().create(this.level);
+        if (this.isPersistenceRequired()) {
+            slime.setPersistenceRequired();
+        }
+        setContainer(this.getContainer());
+        slime.setCustomName(component);
+        slime.setNoAi(this.isNoAi());
+        slime.setInvulnerable(this.isInvulnerable());
+        slime.setSize(size, true);
+        slime.moveTo(this.getX() + (double)f1, this.getY() + 0.5D, this.getZ() + (double)f2, this.random.nextFloat() * 360.0F, 0.0F);
+        this.level.addFreshEntity(slime);
     }
 
     @Override
