@@ -11,6 +11,6 @@
     "type": "pretender:suspicious_slime",
     "weight": 40,
     "minCount": 0,
-    "maxCount": 2
+    "maxCount": 1
   }
 }

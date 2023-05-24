@@ -9,7 +9,7 @@
   ],
   "spawners": {
     "type": "pretender:suspicious_spider",
-    "weight": 150,
+    "weight": 80,
     "minCount": 0,
     "maxCount": 1
   }

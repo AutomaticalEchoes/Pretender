@@ -11,6 +11,6 @@
     "type": "pretender:suspicious_skeleton",
     "weight": 80,
     "minCount": 0,
-    "maxCount": 2
+    "maxCount": 1
   }
 }
