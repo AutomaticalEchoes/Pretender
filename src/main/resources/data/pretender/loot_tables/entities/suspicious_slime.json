@@ -9,13 +9,48 @@
           "entity": "this",
           "predicate": {
             "type_specific": {
-              "type": "slime",
+              "type": "suspicious_slime",
               "size": 1
             }
           }
         }
       ],
       "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "pretender:suspicious_slime_ball",
+          "conditions": [
+            {
+              "condition": "minecraft:entity_properties",
+              "entity": "this",
+              "predicate": {
+                "type_specific": {
+                  "type": "suspicious_slime",
+                  "size": 1
+                }
+              }
+            }
+          ],
+          "functions": [
+            {
+              "add": false,
+              "count": {
+                "type": "minecraft:uniform",
+                "max": 1.0,
+                "min": 1.0
+              },
+              "function": "minecraft:set_count"
+            },
+            {
+              "count": {
+                "type": "minecraft:uniform",
+                "max": 1.0,
+                "min": 0.0
+              },
+              "function": "minecraft:looting_enchant"
+            }
+          ]
+        },
         {
           "type": "minecraft:item",
           "conditions": [
@@ -75,34 +110,6 @@
         }
       ],
       "rolls": 1
-    },
-    {
-      "rolls": 1,
-      "entries": [
-        {
-          "type": "minecraft:item",
-          "name": "pretender:suspicious_slime_ball",
-          "conditions": [
-            {
-              "condition": "minecraft:entity_properties",
-              "entity": "this",
-              "predicate": {
-                "type_specific": {
-                  "type": "slime",
-                  "size": 1
-                }
-              }
-            }
-          ],
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": 1,
-              "add": false
-            }
-          ]
-        }
-      ]
     }
   ]
 }

@@ -242,11 +242,9 @@ public class SuspiciousSlime extends Mob implements Enemy {
     public void remove(RemovalReason p_149847_) {
         int i = this.getSize();
         if (!this.level.isClientSide && i > 1 && this.isDeadOrDying()) {
-
-            boolean flag = this.isNoAi();
             float f = (float)i / 4.0F;
             int j = i / 2;
-            int k = 1 + this.random.nextInt(1);
+            int k = 1 + this.random.nextInt(3);
             for(int l = 0; l < k; ++l) {
                 float f1 = ((float)(l % 2) - 0.5F) * f;
                 float f2 = ((float)(l / 2) - 0.5F) * f;
