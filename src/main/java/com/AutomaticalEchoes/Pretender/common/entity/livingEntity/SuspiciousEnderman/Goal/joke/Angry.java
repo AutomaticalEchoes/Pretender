@@ -1,21 +1,29 @@
 package com.AutomaticalEchoes.Pretender.common.entity.livingEntity.SuspiciousEnderman.Goal.joke;
 
 import com.AutomaticalEchoes.Pretender.Pretender;
+import com.AutomaticalEchoes.Pretender.api.Joke;
 import com.AutomaticalEchoes.Pretender.api.JokeCase;
 import com.AutomaticalEchoes.Pretender.common.entity.livingEntity.SuspiciousEnderman.SuspiciousEnderman;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
-public class teleportJoke implements JokeCase<Player> {
-    private SuspiciousEnderman suspiciousEnderman;
+import java.util.function.Predicate;
+
+public class Angry extends Joke<Player> {
     private @Nullable BlockPos.MutableBlockPos angryJokePos = null;
     private @Nullable Integer SelectedStructuresID = null;
+
+    public Angry(SuspiciousEnderman suspiciousEnderman) {
+        super(suspiciousEnderman);
+    }
+
     @Override
-    public int Level() {
-        return 0;
+    public Case Case() {
+        return Case.EMPTY;
     }
 
     @Override
@@ -33,6 +41,12 @@ public class teleportJoke implements JokeCase<Player> {
                 angryJokePos = suspiciousEnderman.PreparePos(serverLevel,SelectedStructuresID);
             }
         }
+        angryJoke(target,angryJokePos);
+    }
+
+    @Override
+    public @Nullable Predicate<LivingEntity> TargetSelector() {
+        return null;
     }
 
     public boolean angryJoke(Player player,@Nullable BlockPos.MutableBlockPos blockpos$mutableblockpos){
@@ -59,10 +73,5 @@ public class teleportJoke implements JokeCase<Player> {
             return true;
         }
         return false;
-    }
-
-    @Override
-    public Player Target() {
-        return null;
     }
 }

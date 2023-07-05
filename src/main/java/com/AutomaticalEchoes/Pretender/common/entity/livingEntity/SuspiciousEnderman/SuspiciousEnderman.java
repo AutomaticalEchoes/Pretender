@@ -2,7 +2,7 @@ package com.AutomaticalEchoes.Pretender.common.entity.livingEntity.SuspiciousEnd
 
 import com.AutomaticalEchoes.Pretender.Pretender;
 import com.AutomaticalEchoes.Pretender.common.entity.livingEntity.SuspiciousEnderman.Goal.DoJoke;
-import com.AutomaticalEchoes.Pretender.common.entity.livingEntity.SuspiciousEnderman.Goal.GonnaJoke;
+import com.AutomaticalEchoes.Pretender.common.entity.livingEntity.SuspiciousEnderman.Goal.JokeSelect;
 import com.AutomaticalEchoes.Pretender.common.entity.livingEntity.SuspiciousEnderman.Goal.ScareWhileStared;
 import com.AutomaticalEchoes.Pretender.common.entity.livingEntity.SuspiciousEnderman.Goal.TeleportWhileHasSight;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
@@ -20,8 +20,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -31,7 +29,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -111,7 +108,7 @@ public class SuspiciousEnderman extends Monster {
         this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
         this.goalSelector.addGoal(4, new LookAtPlayerGoal(this, Player.class, 8.0F));
         this.goalSelector.addGoal(5, this.doJoke);
-        this.goalSelector.addGoal(6, new GonnaJoke(this));
+        this.goalSelector.addGoal(6, new JokeSelect(this));
         this.goalSelector.addGoal(7, new TeleportWhileHasSight(this));
         this.goalSelector.addGoal(8, new ScareWhileStared(this));
     }
