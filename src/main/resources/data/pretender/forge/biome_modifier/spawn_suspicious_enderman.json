@@ -9,7 +9,7 @@
   ],
   "spawners": {
     "type": "pretender:suspicious_enderman",
-    "weight": 40,
+    "weight": 10,
     "minCount": 0,
     "maxCount": 1
   }

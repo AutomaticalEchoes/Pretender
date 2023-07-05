@@ -13,8 +13,6 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-
 public class EnderJoke {
     private static int AngryJoke(CommandSourceStack context ,Entity joker, @Nullable Entity target, @Nullable Integer structuresId,boolean isAngry) throws CommandSyntaxException {
         CommonModEvents.CHANNEL.sendToServer(new EnderJokeTask(joker.getId(),target!=null? target.getId() : null,structuresId,isAngry));

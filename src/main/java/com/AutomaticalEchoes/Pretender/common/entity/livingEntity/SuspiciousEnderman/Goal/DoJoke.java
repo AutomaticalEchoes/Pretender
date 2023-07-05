@@ -19,9 +19,8 @@ import java.util.EnumSet;
 
 public class DoJoke extends Goal {
     private final SuspiciousEnderman suspiciousEnderman;
-    private @Nullable BlockPos.MutableBlockPos angryJokePos = null;
-    private @Nullable Integer SelectedStructuresID = null;
-    private int tick =0 ;
+
+    private int tick = 0 ;
 
     public DoJoke(SuspiciousEnderman suspiciousEnderman) {
         this.suspiciousEnderman = suspiciousEnderman;
@@ -35,15 +34,6 @@ public class DoJoke extends Goal {
 
     @Override
     public void start() {
-        if(this.suspiciousEnderman.isAngry() && this.suspiciousEnderman.level instanceof ServerLevel serverLevel){
-            if(SelectedStructuresID ==null){
-                int i = Pretender.RANDOM.nextInt(SuspiciousEnderman.STRUCTURES.length + 1);
-                angryJokePos = i!=0? suspiciousEnderman.PreparePos(serverLevel,i) : null;
-            }else {
-                angryJokePos = suspiciousEnderman.PreparePos(serverLevel,SelectedStructuresID);
-            }
-        }
-
         this.tick = 0;
     }
 

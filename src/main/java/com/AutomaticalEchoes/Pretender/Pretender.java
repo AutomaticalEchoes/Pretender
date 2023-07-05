@@ -1,21 +1,23 @@
 package com.AutomaticalEchoes.Pretender;
 
-import com.AutomaticalEchoes.Pretender.api.ICauldronInteraction;
 import com.AutomaticalEchoes.Pretender.common.command.EnderJoke;
 import com.AutomaticalEchoes.Pretender.config.ModCommonConfig;
-import com.AutomaticalEchoes.Pretender.register.*;
+import com.AutomaticalEchoes.Pretender.register.EntityRegister;
+import com.AutomaticalEchoes.Pretender.register.ItemsRegister;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.logging.LogUtils;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
 
@@ -47,13 +49,8 @@ public class Pretender
         // Register the commonSetup method for modloading
 
         // Register the Deferred Register to the mod event bus so blocks get registered
-        FluidRegister.DEFERRED_REGISTER.register(modEventBus);
-        FluidRegister.Type.TYPE_DEFERRED_REGISTER.register(modEventBus);
-        EffectsRegister.REGISTRY.register(modEventBus);
         EntityRegister.REGISTER.register(modEventBus);
-        BlockRegister.DEFERRED_REGISTER.register(modEventBus);
         ItemsRegister.REGISTRY.register(modEventBus);
-        PotionRegister.REGISTRY.register(modEventBus);
 
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
@@ -65,7 +62,6 @@ public class Pretender
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event)
     {
-        ICauldronInteraction.Init();
         // Do something when the server starts
         LOGGER.info("HELLO from server starting");
     }

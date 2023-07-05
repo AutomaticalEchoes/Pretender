@@ -307,31 +307,7 @@ public class SuspiciousEnderman extends Monster {
         }
     }
 
-    public boolean angryJoke(Player player,@Nullable BlockPos.MutableBlockPos blockpos$mutableblockpos){
-        if(!isAngry()) return false;
-        return blockpos$mutableblockpos != null? angryJokeStructures(player,blockpos$mutableblockpos) : angryJokeDimension(player);
-    }
 
-    public boolean angryJokeDimension(Player player){
-        if(level instanceof ServerLevel serverLevel){
-            ServerLevel level = serverLevel.getServer().getLevel(Level.END);
-            if(level !=null){
-                doHurtTarget(player);
-                player.changeDimension(level);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean angryJokeStructures(Player player, BlockPos.MutableBlockPos blockpos$mutableblockpos){
-        if(level instanceof ServerLevel serverLevel ){
-            doHurtTarget(player);
-            player.teleportTo(blockpos$mutableblockpos.getX(),blockpos$mutableblockpos.getY(),blockpos$mutableblockpos.getZ());
-            return true;
-        }
-        return false;
-    }
 
     public @Nullable BlockPos.MutableBlockPos PreparePos(ServerLevel serverLevel, Integer structureId){
         ResourceKey<Structure> structure = STRUCTURES[structureId - 1];
@@ -369,30 +345,6 @@ public class SuspiciousEnderman extends Monster {
     public void stopCatching(){
         for(Entity entity : getPassengers()){
             entity.stopRiding();
-        }
-    }
-
-    public void steal(Player player){
-        Inventory playerInventory = player.getInventory();
-        ItemStack selected = playerInventory.getSelected();
-        if(selected != ItemStack.EMPTY){
-            playerInventory.setItem(playerInventory.selected,ItemStack.EMPTY);
-        }else {
-            player.addEffect(new MobEffectInstance(MobEffects.DARKNESS,200));
-        }
-        Pretender.LOGGER.info("steal!");
-        setCarriedItem(selected);
-    }
-
-    public void frameUp(Player player){
-        Inventory playerInventory = player.getInventory();
-        ItemStack itemStack = this.entityData.get(CARRIED_ITEM);
-        int freeSlot = playerInventory.getFreeSlot();
-        int slotWithRemainingSpace = playerInventory.getSlotWithRemainingSpace(itemStack);
-        int slotNum = freeSlot == -1? slotWithRemainingSpace : freeSlot ;
-        if(slotNum != -1){
-            playerInventory.setItem(slotNum,itemStack);
-            this.setCarriedItem(ItemStack.EMPTY);
         }
     }
 
