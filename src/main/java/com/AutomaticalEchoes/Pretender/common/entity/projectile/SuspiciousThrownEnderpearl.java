@@ -47,6 +47,7 @@ public class SuspiciousThrownEnderpearl extends ThrowableItemProjectile{
 
     protected void onHit(HitResult p_37504_) {
         if (!this.level.isClientSide && !this.isRemoved()) {
+            if(back) return;
             super.onHit(p_37504_);
             this.setNoGravity(true);
             Entity owner = this.getOwner();
@@ -54,6 +55,7 @@ public class SuspiciousThrownEnderpearl extends ThrowableItemProjectile{
                 this.discard();
                 return;
             }
+
 
             if(p_37504_ instanceof EntityHitResult entityHitResult){
                 Entity target =entityHitResult.getEntity();

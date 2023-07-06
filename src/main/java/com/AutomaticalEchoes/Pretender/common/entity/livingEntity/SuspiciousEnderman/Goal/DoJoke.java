@@ -55,6 +55,7 @@ public class DoJoke extends Goal {
             }
             suspiciousEnderman.moveTo(jokingTarget.position());
             joke.doJoke();
+            Pretender.LOGGER.info("Joke start");
         }else if(tick > 30){
             this.suspiciousEnderman.jokeComp();
             this.stop();
