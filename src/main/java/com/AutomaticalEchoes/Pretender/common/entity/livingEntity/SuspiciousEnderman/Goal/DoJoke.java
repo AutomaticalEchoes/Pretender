@@ -1,12 +1,15 @@
 package com.AutomaticalEchoes.Pretender.common.entity.livingEntity.SuspiciousEnderman.Goal;
 
 import com.AutomaticalEchoes.Pretender.Pretender;
+import com.AutomaticalEchoes.Pretender.api.JokeCase;
 import com.AutomaticalEchoes.Pretender.common.entity.livingEntity.SuspiciousEnderman.SuspiciousEnderman;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.monster.Creeper;
@@ -16,10 +19,11 @@ import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumSet;
+import java.util.List;
 
 public class DoJoke extends Goal {
     private final SuspiciousEnderman suspiciousEnderman;
-
+    private JokeCase<? extends LivingEntity> joke;
     private int tick = 0 ;
 
     public DoJoke(SuspiciousEnderman suspiciousEnderman) {
@@ -34,12 +38,8 @@ public class DoJoke extends Goal {
 
     @Override
     public void start() {
+        this.joke = suspiciousEnderman.getJoke();
         this.tick = 0;
-    }
-
-    public void startWith(@Nullable Integer selectedStructuresID){
-        this.SelectedStructuresID = selectedStructuresID;
-        this.start();
     }
 
     @Override
@@ -54,11 +54,7 @@ public class DoJoke extends Goal {
                 return;
             }
             suspiciousEnderman.moveTo(jokingTarget.position());
-            if(jokingTarget instanceof Player player){
-                jokeWithPlayer(player);
-            }else {
-                jokeWithAiLiving(jokingTarget);
-            }
+            joke.doJoke();
         }else if(tick > 30){
             this.suspiciousEnderman.jokeComp();
             this.stop();
@@ -67,39 +63,9 @@ public class DoJoke extends Goal {
 
     @Override
     public void stop() {
-        suspiciousEnderman.reset();
-        this.SelectedStructuresID = null;
-        this.angryJokePos = null;
+        joke.reset();
     }
 
-    private void jokeWithPlayer(Player player){
-        if(suspiciousEnderman.angryJoke(player,this.angryJokePos)) return;
-
-
-        if(suspiciousEnderman.CarryNothing()){
-            suspiciousEnderman.steal(player);
-        }else if(!suspiciousEnderman.isCarryItemEmpty()){
-            suspiciousEnderman.frameUp(player);
-        }else if(!suspiciousEnderman.getPassengers().isEmpty()){
-            Entity firstPassenger = suspiciousEnderman.getFirstPassenger();
-            suspiciousEnderman.stopCatching();
-            if(!(firstPassenger instanceof Monster) && firstPassenger instanceof LivingEntity) player.startRiding(firstPassenger);
-        }
-    }
-
-    private void jokeWithAiLiving(LivingEntity livingEntity){
-        if(suspiciousEnderman.CarryNothing()){
-            livingEntity.startRiding(suspiciousEnderman);
-        }else if(livingEntity instanceof Creeper creeper && suspiciousEnderman.getFirstPassenger() instanceof Cat cat){
-            cat.startRiding(creeper);
-        }else if(livingEntity instanceof Skeleton skeleton && suspiciousEnderman.getFirstPassenger() instanceof Wolf wolf){
-            wolf.startRiding(skeleton);
-        }else if(suspiciousEnderman.isCarryItemEmpty()){
-            suspiciousEnderman.stopCatching();
-        }else {
-            suspiciousEnderman.dropCarried();
-        }
-    }
 
 
 }

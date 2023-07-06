@@ -2,6 +2,7 @@ package com.AutomaticalEchoes.Pretender.common.entity.livingEntity.SuspiciousEnd
 
 import com.AutomaticalEchoes.Pretender.Pretender;
 import com.AutomaticalEchoes.Pretender.api.JokeCase;
+import com.AutomaticalEchoes.Pretender.common.entity.livingEntity.SuspiciousEnderman.Goal.joke.*;
 import com.AutomaticalEchoes.Pretender.common.entity.livingEntity.SuspiciousEnderman.SuspiciousEnderman;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -14,6 +15,7 @@ import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.Skeleton;
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -22,19 +24,40 @@ import java.util.function.Predicate;
 
 public class JokeSelect extends Goal {
     private final SuspiciousEnderman suspiciousEnderman;
-    private final TargetingConditions jokeWithTargetConditions;
     private JokeCase.Case Case = JokeCase.Case.EMPTY;
-    private final Predicate<JokeCase> JOKE_PREDICATE  = joke -> {
-
-    };
-    private static final ArrayList<JokeCase> JOKE_LIST = new ArrayList<>();
+    public final ArrayList<JokeCase<?>> JOKE_LIST = new ArrayList<>();
+    public final Angry ANGRY;
+    public final Steal STEAL;
+    public final FrameUp FRAME_UP;
+    public final Catch CATCH;
+    public final Ride CAT_CREEPER;
+    public final Ride WOLF_SKELETON;
+    public final Ride LIVING_PLAYER;
     public JokeSelect(SuspiciousEnderman suspiciousEnderman) {
         this.setFlags(EnumSet.of(Flag.MOVE));
         this.suspiciousEnderman = suspiciousEnderman;
-        this.jokeWithTargetConditions=TargetingConditions
-                .forCombat()
-                .range(this.suspiciousEnderman.getAttributeValue(Attributes.FOLLOW_RANGE))
-                .selector(LIVING_ENTITY_PREDICATE);
+
+        ANGRY = new Angry(suspiciousEnderman);
+        STEAL = new Steal(suspiciousEnderman);
+        FRAME_UP = new FrameUp(suspiciousEnderman);
+        CATCH = new Catch(suspiciousEnderman);
+        CAT_CREEPER = new Ride(suspiciousEnderman , Ride::CatWithCreeper);
+        WOLF_SKELETON = new Ride(suspiciousEnderman,Ride::WolfWithSkeleton);
+        LIVING_PLAYER = new Ride(suspiciousEnderman,Ride::LivingWithPlayer);
+
+        JOKE_LIST.add(ANGRY);
+        JOKE_LIST.add(STEAL);
+        JOKE_LIST.add(FRAME_UP);
+        JOKE_LIST.add(CATCH);
+        JOKE_LIST.add(CAT_CREEPER);
+        JOKE_LIST.add(WOLF_SKELETON);
+        JOKE_LIST.add(LIVING_PLAYER);
+    }
+
+
+    public JokeSelect AddJoke(JokeCase<?> jokeCase){
+        JOKE_LIST.add(jokeCase);
+        return this;
     }
 
     @Override
@@ -44,8 +67,14 @@ public class JokeSelect extends Goal {
 
     @Override
     public void start() {
-
+        CheckCase();
+        if(SelectJoke()){
+            suspiciousEnderman.StartJoke();
+        }else {
+            Reset();
+        }
     }
+
 
     public void CheckCase(){
         if(suspiciousEnderman.CarryNothing()){
@@ -57,22 +86,25 @@ public class JokeSelect extends Goal {
         }
     }
 
-    public void SelectTarget(){
-        List<LivingEntity> entities = suspiciousEnderman.level.getNearbyEntities(LivingEntity.class,jokeWithTargetConditions,suspiciousEnderman,suspiciousEnderman.getBoundingBox().inflate(20.0));
-        if(entities.size() >0 && suspiciousEnderman.isAngry()){
-            entities.removeIf(entity -> !(entity instanceof Player));
-        }
-        int size = entities.size();
+
+
+    public boolean SelectJoke(){
+        List<JokeCase<?>> jokeCases = JOKE_LIST.stream().filter(this::Rule).toList();
+        int size = jokeCases.size();
         if(size >0){
             int i = Pretender.RANDOM.nextInt(size);
-            LivingEntity entity = entities.get(i);
-            suspiciousEnderman.setJokingTarget(entity);
+            suspiciousEnderman.setJoke( jokeCases.get(i) );
+            return true;
         }
+        return false;
     }
 
-    public JokeCase SelectJoke(){
-        JokeCase.Case CASE = this.Case;
-        List<JokeCase> jokeCases = JOKE_LIST.stream().filter(jokeCase -> jokeCase.canJoke() && jokeCase.Case() == CASE).toList();
-        int size = e
+    public void Reset(){
+        suspiciousEnderman.reset();
+        Case = JokeCase.Case.EMPTY;
+    }
+
+    public boolean Rule(JokeCase<?> joke){
+        return joke.Case() == this.Case && joke.canJoke();
     }
 }

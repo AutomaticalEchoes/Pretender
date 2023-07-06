@@ -24,23 +24,25 @@ public class Steal extends Joke<Player> {
 
     @Override
     public boolean canJoke() {
-        return false;
+        return super.canJoke();
     }
 
     @Override
-    public void doJoke(Player target) {
-        Inventory playerInventory = target.getInventory();
-        ItemStack selected = playerInventory.getSelected();
-        if(selected != ItemStack.EMPTY){
-            playerInventory.setItem(playerInventory.selected,ItemStack.EMPTY);
-        }else {
-            target.addEffect(new MobEffectInstance(MobEffects.DARKNESS,200));
+    public void doJoke() {
+        if(suspiciousEnderman.getJokingTarget() instanceof  Player target){
+            Inventory playerInventory = target.getInventory();
+            ItemStack selected = playerInventory.getSelected();
+            if(selected != ItemStack.EMPTY){
+                playerInventory.setItem(playerInventory.selected,ItemStack.EMPTY);
+            }else {
+                target.addEffect(new MobEffectInstance(MobEffects.DARKNESS,200));
+            }
+            suspiciousEnderman.setCarriedItem(selected);
         }
-        suspiciousEnderman.setCarriedItem(selected);
     }
 
     @Override
     public @Nullable Predicate<LivingEntity> TargetSelector() {
-        return null;
+        return PLAYER;
     }
 }

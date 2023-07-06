@@ -1,10 +1,12 @@
 package com.AutomaticalEchoes.Pretender.common.entity.livingEntity.SuspiciousEnderman;
 
 import com.AutomaticalEchoes.Pretender.Pretender;
+import com.AutomaticalEchoes.Pretender.api.JokeCase;
 import com.AutomaticalEchoes.Pretender.common.entity.livingEntity.SuspiciousEnderman.Goal.DoJoke;
 import com.AutomaticalEchoes.Pretender.common.entity.livingEntity.SuspiciousEnderman.Goal.JokeSelect;
 import com.AutomaticalEchoes.Pretender.common.entity.livingEntity.SuspiciousEnderman.Goal.ScareWhileStared;
 import com.AutomaticalEchoes.Pretender.common.entity.livingEntity.SuspiciousEnderman.Goal.TeleportWhileHasSight;
+import com.AutomaticalEchoes.Pretender.common.entity.livingEntity.SuspiciousEnderman.Goal.joke.*;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import net.minecraft.core.*;
 import net.minecraft.core.particles.ParticleTypes;
@@ -27,6 +29,7 @@ import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.*;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
@@ -39,9 +42,11 @@ import net.minecraft.world.level.levelgen.structure.BuiltinStructures;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
+import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -61,7 +66,13 @@ public class SuspiciousEnderman extends Monster {
     private int clamDown =0;
     private int lastJokeTime =0;
     private boolean angry = false;
+    private JokeCase<?> joke;
     private DoJoke doJoke ;
+    private JokeSelect jokeSelect;
+    private final TargetingConditions selector = TargetingConditions
+            .forCombat()
+            .range(this.getAttributeValue(Attributes.FOLLOW_RANGE));
+
 
     public SuspiciousEnderman(EntityType<? extends SuspiciousEnderman> p_32485_, Level p_32486_) {
         super(p_32485_, p_32486_);
@@ -99,6 +110,7 @@ public class SuspiciousEnderman extends Monster {
     @Override
     protected void registerGoals() {
         this.doJoke = new DoJoke(this);
+        this.jokeSelect = new JokeSelect(this);
         FloatGoal floatGoal = new FloatGoal(this);
         WaterAvoidingRandomStrollGoal waterAvoidingRandomStrollGoal = new WaterAvoidingRandomStrollGoal(this, 1.0D, 0.0F);
         floatGoal.setFlags(EnumSet.of(Goal.Flag.MOVE));
@@ -108,7 +120,7 @@ public class SuspiciousEnderman extends Monster {
         this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
         this.goalSelector.addGoal(4, new LookAtPlayerGoal(this, Player.class, 8.0F));
         this.goalSelector.addGoal(5, this.doJoke);
-        this.goalSelector.addGoal(6, new JokeSelect(this));
+        this.goalSelector.addGoal(6, this.jokeSelect);
         this.goalSelector.addGoal(7, new TeleportWhileHasSight(this));
         this.goalSelector.addGoal(8, new ScareWhileStared(this));
     }
@@ -304,6 +316,27 @@ public class SuspiciousEnderman extends Monster {
         }
     }
 
+    public void StartJoke(){
+        if(SelectTarget()) {
+            this.doJoke.start();
+            return;
+        }
+        reset();
+    }
+
+
+    public boolean SelectTarget(){
+        selector.selector(this.getJoke().TargetSelector());
+        List<LivingEntity> entities = level.getNearbyEntities(LivingEntity.class,selector,this,getBoundingBox().inflate(20.0));
+        int size = entities.size();
+        if(size >0){
+            int i = Pretender.RANDOM.nextInt(size);
+            LivingEntity entity = entities.get(i);
+            setJokingTarget(entity);
+            return true;
+        }
+        return false;
+    }
 
 
     public @Nullable BlockPos.MutableBlockPos PreparePos(ServerLevel serverLevel, Integer structureId){
@@ -329,14 +362,15 @@ public class SuspiciousEnderman extends Monster {
 
     public void startJokeWith(LivingEntity entity, @Nullable Integer structuredDataId){
         this.setJokingTarget(entity);
-        this.doJoke.startWith(structuredDataId);
+        this.joke = jokeSelect.ANGRY.WithStructure(structuredDataId);
+        this.doJoke.start();
     }
 
     public void reset(){
         this.entityData.set(JOKING_TARGET_ID,0);
         this.entityData.set(DATA_JOKING,false);
         this.clamDown = PERSISTENT_SCARE_TIME;
-
+        this.jokeComp();
     }
 
     public void stopCatching(){
@@ -412,4 +446,11 @@ public class SuspiciousEnderman extends Monster {
         return isCarryItemEmpty() && this.getPassengers().isEmpty();
     }
 
+    public void setJoke(JokeCase<?> joke) {
+        this.joke = joke;
+    }
+
+    public JokeCase<?> getJoke() {
+        return joke;
+    }
 }

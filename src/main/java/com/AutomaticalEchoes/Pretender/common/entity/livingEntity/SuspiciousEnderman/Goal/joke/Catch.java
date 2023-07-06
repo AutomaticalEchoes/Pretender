@@ -20,17 +20,17 @@ public class Catch extends Joke<LivingEntity> {
 
     @Override
     public boolean canJoke() {
-        return false;
+        return super.canJoke();
     }
 
     @Override
-    public void doJoke(LivingEntity target) {
-        target.startRiding(suspiciousEnderman);
+    public void doJoke() {
+        suspiciousEnderman.getJokingTarget().startRiding(suspiciousEnderman);
     }
 
     @Override
     public @Nullable Predicate<LivingEntity> TargetSelector() {
-        return null;
+        return EXCEPT_PLAYER;
     }
 
 }

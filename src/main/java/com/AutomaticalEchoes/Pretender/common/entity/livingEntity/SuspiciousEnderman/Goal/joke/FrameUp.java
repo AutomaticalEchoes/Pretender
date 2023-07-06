@@ -23,24 +23,27 @@ public class FrameUp extends Joke<Player> {
 
     @Override
     public boolean canJoke() {
-        return false;
+        return super.canJoke();
     }
 
     @Override
-    public void doJoke(Player target) {
-        Inventory playerInventory = target.getInventory();
-        ItemStack itemStack = suspiciousEnderman.getCarriedItem();
-        int freeSlot = playerInventory.getFreeSlot();
-        int slotWithRemainingSpace = playerInventory.getSlotWithRemainingSpace(itemStack);
-        int slotNum = freeSlot == -1? slotWithRemainingSpace : freeSlot ;
-        if(slotNum != -1){
-            playerInventory.setItem(slotNum,itemStack);
-            suspiciousEnderman.setCarriedItem(ItemStack.EMPTY);
+    public void doJoke() {
+        if(suspiciousEnderman.getJokingTarget() instanceof Player target){
+            Inventory playerInventory = target.getInventory();
+            ItemStack itemStack = suspiciousEnderman.getCarriedItem();
+            int freeSlot = playerInventory.getFreeSlot();
+            int slotWithRemainingSpace = playerInventory.getSlotWithRemainingSpace(itemStack);
+            int slotNum = freeSlot == -1? slotWithRemainingSpace : freeSlot ;
+            if(slotNum != -1){
+                playerInventory.setItem(slotNum,itemStack);
+                suspiciousEnderman.setCarriedItem(ItemStack.EMPTY);
+            }
         }
+
     }
 
     @Override
     public @Nullable Predicate<LivingEntity> TargetSelector() {
-        return null;
+        return PLAYER;
     }
 }

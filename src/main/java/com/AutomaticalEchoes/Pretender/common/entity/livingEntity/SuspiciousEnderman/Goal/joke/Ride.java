@@ -23,18 +23,7 @@ public class Ride extends Joke<LivingEntity> {
     public LivingEntity Rider;
     public LivingEntity Saddle;
     private final TriFunction<Ride,LivingEntity,LivingEntity,Boolean> func;
-    private final Predicate<LivingEntity> LIVING_ENTITY_PREDICATE  = livingEntity -> {
-        if (suspiciousEnderman.getFirstPassenger() instanceof Cat) {
-            return livingEntity instanceof Creeper;
-        }
-        if (suspiciousEnderman.getFirstPassenger() instanceof Wolf) {
-            return livingEntity instanceof Skeleton;
-        }
-        if (!suspiciousEnderman.isCarryItemEmpty() || suspiciousEnderman.getFirstPassenger() instanceof Monster) {
-            return livingEntity instanceof Player player && player.isInvulnerable();
-        }
-        return !(livingEntity instanceof Player player) || !player.isInvulnerable();
-    };
+
     public Ride(SuspiciousEnderman suspiciousEnderman , TriFunction<Ride,LivingEntity,LivingEntity,Boolean> func) {
         super(suspiciousEnderman);
         this.func = func;
@@ -55,17 +44,17 @@ public class Ride extends Joke<LivingEntity> {
     }
 
     @Override
-    public void doJoke(LivingEntity target) {
+    public void doJoke() {
         Rider.startRiding(Saddle);
     }
 
     @Override
     public @Nullable Predicate<LivingEntity> TargetSelector() {
-        return LIVING_ENTITY_PREDICATE;
+        return LIVING_ENTITY;
     }
 
     public static Boolean CatWithCreeper(Ride rideJoke,LivingEntity catching,LivingEntity target){
-        if(catching instanceof Cat && target instanceof Creeper){
+        if(catching instanceof Cat){
             rideJoke.Rider = catching;
             rideJoke.Saddle = target;
             return true;
@@ -73,7 +62,7 @@ public class Ride extends Joke<LivingEntity> {
         return false;
     }
     public static Boolean WolfWithSkeleton(Ride rideJoke,LivingEntity catching,LivingEntity target){
-        if(catching instanceof Wolf && target instanceof Skeleton){
+        if(catching instanceof Wolf){
             rideJoke.Rider = catching;
             rideJoke.Saddle = target;
             return true;
@@ -81,7 +70,7 @@ public class Ride extends Joke<LivingEntity> {
         return false;
     }
     public static Boolean LivingWithPlayer(Ride rideJoke,LivingEntity catching,LivingEntity target){
-        if(!(catching instanceof Monster) && target instanceof Player){
+        if(!(catching instanceof Monster)){
             rideJoke.Rider = target;
             rideJoke.Saddle = catching;
             return true;
