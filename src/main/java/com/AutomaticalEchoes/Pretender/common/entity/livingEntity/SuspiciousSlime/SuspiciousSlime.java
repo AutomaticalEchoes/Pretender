@@ -34,13 +34,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.*;
-import net.minecraft.world.level.block.BucketPickup;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
-import java.util.Optional;
 
 public class SuspiciousSlime extends Mob implements Enemy {
     private static final EntityDataAccessor<Integer> ID_SIZE = SynchedEntityData.defineId(Slime.class, EntityDataSerializers.INT);

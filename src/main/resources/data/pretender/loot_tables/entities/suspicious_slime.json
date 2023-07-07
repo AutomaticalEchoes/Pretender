@@ -9,7 +9,7 @@
           "entity": "this",
           "predicate": {
             "type_specific": {
-              "type": "suspicious_slime",
+              "type": "pretender:suspicious_slime",
               "size": 1
             }
           }
@@ -22,13 +22,7 @@
           "conditions": [
             {
               "condition": "minecraft:entity_properties",
-              "entity": "this",
-              "predicate": {
-                "type_specific": {
-                  "type": "suspicious_slime",
-                  "size": 1
-                }
-              }
+              "entity": "this"
             }
           ],
           "functions": [

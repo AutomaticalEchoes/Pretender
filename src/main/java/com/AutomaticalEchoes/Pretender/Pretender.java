@@ -1,21 +1,19 @@
 package com.AutomaticalEchoes.Pretender;
 
 import com.AutomaticalEchoes.Pretender.api.ICauldronInteraction;
-import com.AutomaticalEchoes.Pretender.common.command.EnderJoke;
 import com.AutomaticalEchoes.Pretender.config.ModCommonConfig;
 import com.AutomaticalEchoes.Pretender.register.*;
-import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.logging.LogUtils;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
 
@@ -72,9 +70,4 @@ public class Pretender
 
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
 
-    @SubscribeEvent
-    public  void  registerCommands(RegisterCommandsEvent event){
-        CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
-        EnderJoke.register(dispatcher);
-    }
 }

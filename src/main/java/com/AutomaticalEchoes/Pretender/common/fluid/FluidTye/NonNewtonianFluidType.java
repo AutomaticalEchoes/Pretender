@@ -4,7 +4,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.fluids.FluidType;
 
 public class NonNewtonianFluidType extends BaseFluidType {
     private float friction = 0.8F;
