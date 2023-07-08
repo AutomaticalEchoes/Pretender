@@ -26,6 +26,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.IronGolem;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.Slime;
@@ -40,15 +41,12 @@ import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nullable;
 
 public class SuspiciousSlime extends Mob implements Enemy {
-    private static final EntityDataAccessor<Integer> ID_SIZE = SynchedEntityData.defineId(Slime.class, EntityDataSerializers.INT);
-    public static final int MIN_SIZE = 1;
-    public static final int MAX_SIZE = 127;
-    private final int TRANSLATE_TICK=20 * ModCommonConfig.SUSPICIOUS_SLIME_TRANSLATE_TICK.get();
-    private final int PREPARE_TICK= 20 * ModCommonConfig.SUSPICIOUS_SLIME_PREPARE_TICK.get();
+    private static final EntityDataAccessor<Integer> ID_SIZE = SynchedEntityData.defineId(SuspiciousSlime.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<ItemStack> CARRIED_ITEM = SynchedEntityData.defineId(SuspiciousSlime.class ,EntityDataSerializers.ITEM_STACK);
+    private final int TRANSLATE_TICK =20 * ModCommonConfig.SUSPICIOUS_SLIME_TRANSLATE_TICK.get();
     private boolean wasOnGround;
-    private int prepareTick = 0;
     private SimpleContainer container =new SimpleContainer(1);
-    private int lastHurtTime=TRANSLATE_TICK;
+    private int keepFoodTime = TRANSLATE_TICK;
     public float targetSquish;
     public float squish;
     public float oSquish;
@@ -56,7 +54,7 @@ public class SuspiciousSlime extends Mob implements Enemy {
     public SuspiciousSlime(EntityType<? extends SuspiciousSlime> p_33588_, Level p_33589_) {
         super(p_33588_, p_33589_);
         this.moveControl=new IMoveControl(this);
-        resetLastHurtTime();
+        resetKeepFoodTime();
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -66,6 +64,7 @@ public class SuspiciousSlime extends Mob implements Enemy {
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(ID_SIZE, 1);
+        this.entityData.define(CARRIED_ITEM,ItemStack.EMPTY);
     }
 
     @VisibleForTesting
@@ -74,9 +73,9 @@ public class SuspiciousSlime extends Mob implements Enemy {
         this.entityData.set(ID_SIZE, i);
         this.reapplyPosition();
         this.refreshDimensions();
-        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue((double)(i * i));
-        this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue((double)(0.2F + 0.1F * (float)i));
-        this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue((double)i);
+        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(i * i);
+        this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.2F + 0.1F * (float)i);
+        this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(i);
         if (p_33595_) {
             this.setHealth(this.getMaxHealth());
         }
@@ -91,12 +90,14 @@ public class SuspiciousSlime extends Mob implements Enemy {
         super.addAdditionalSaveData(p_33619_);
         p_33619_.putInt("Size", this.getSize() - 1);
         p_33619_.putBoolean("wasOnGround", this.wasOnGround);
+        p_33619_.put("carried_item",this.entityData.get(CARRIED_ITEM).save(new CompoundTag()));
     }
 
     public void readAdditionalSaveData(CompoundTag p_33607_) {
         this.setSize(p_33607_.getInt("Size") + 1, false);
         super.readAdditionalSaveData(p_33607_);
         this.wasOnGround = p_33607_.getBoolean("wasOnGround");
+        this.setCarriedItem(ItemStack.of(p_33607_.getCompound("carried_item")));
     }
 
     public boolean isTiny() {
@@ -136,22 +137,21 @@ public class SuspiciousSlime extends Mob implements Enemy {
         this.wasOnGround = this.onGround;
         this.decreaseSquish();
 
+        if(this.level.isClientSide) return;
 
-        if(!this.level.isClientSide){
+        if(isCarryItemEmpty()) return;
+
+        if(keepFoodTime > 0 ) {
+            keepFoodTime--;
+        }else if(keepFoodTime == 0) {
             if(this.getSize() < 4){
-                if(lastHurtTime > 0) {
-                    lastHurtTime--;
-                }else if( lastHurtTime==0) {
-                    translate();
-                }
-            }else  if(this.getSize() ==4){
-                if(prepareTick < PREPARE_TICK){
-                    prepareTick++;
-                }else if( prepareTick == PREPARE_TICK){
-                    this.container.addItem(new ItemStack(Items.ARROW));
-                }
+                translate();
+            }else if(this.getSize() == 4) {
+                this.setCarriedItem(ItemStack.EMPTY);
+                this.container.addItem(new ItemStack(Items.ARROW));
             }
         }
+
     }
 
     protected void decreaseSquish() {
@@ -183,6 +183,15 @@ public class SuspiciousSlime extends Mob implements Enemy {
         super.onSyncedDataUpdated(p_33609_);
     }
 
+    public void pickUpItem(ItemEntity p_21471_) {
+        ItemStack itemstack = p_21471_.getItem();
+        if (this.isCarryItemEmpty()) {
+            this.setCarriedItem(itemstack);
+            p_21471_.discard();
+        }
+
+    }
+
     @Override
     protected void registerGoals() {
         this.goalSelector.addGoal(1, new IFloatGoal(this));
@@ -190,6 +199,7 @@ public class SuspiciousSlime extends Mob implements Enemy {
         this.goalSelector.addGoal(4, new RandomDirectionGoal(this));
         this.goalSelector.addGoal(5, new ShootAcidity(this));
         this.goalSelector.addGoal(6, new KeepJumpingGoal(this));
+        this.goalSelector.addGoal(6, new LookingFoodGoal(this));
         this.goalSelector.addGoal(6, new EscapeWhileSmallGoal(this));
         this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Player.class, 10, true, false, (p_33641_) -> Math.abs(p_33641_.getY() - this.getY()) <= 4.0D));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
@@ -209,7 +219,7 @@ public class SuspiciousSlime extends Mob implements Enemy {
     }
 
     public void translate(){
-        int i=this.getSize()<4? this.getSize() << 1:1;
+        int i=this.getSize() < 4? this.getSize() << 1:1;
         Component component = this.getCustomName();
         SuspiciousSlime slime = EntityRegister.SUSPICIOUS_SLIME.get().create(this.level);
         if (this.isPersistenceRequired()) {
@@ -223,15 +233,16 @@ public class SuspiciousSlime extends Mob implements Enemy {
     }
 
 
+
     @Override
     protected void actuallyHurt(DamageSource p_21240_, float p_21241_) {
         super.actuallyHurt(p_21240_, p_21241_);
-        resetLastHurtTime();
+        resetKeepFoodTime();
 
     }
 
-    private void resetLastHurtTime(){
-       if(lastHurtTime!=0) lastHurtTime=TRANSLATE_TICK;
+    private void resetKeepFoodTime(){
+       if(keepFoodTime!=0) keepFoodTime = TRANSLATE_TICK;
     }
 
 
@@ -266,6 +277,21 @@ public class SuspiciousSlime extends Mob implements Enemy {
         slime.setSize(size, true);
         slime.moveTo(this.getX() + (double)f1, this.getY() + 0.5D, this.getZ() + (double)f2, this.random.nextFloat() * 360.0F, 0.0F);
         this.level.addFreshEntity(slime);
+    }
+
+    @Override
+    public void die(DamageSource p_21014_) {
+        super.die(p_21014_);
+        dropCarried();
+    }
+
+    public void dropCarried(){
+        if(!isCarryItemEmpty()) {
+            ItemStack itemStack = this.entityData.get(CARRIED_ITEM);
+            ItemEntity itemEntity = new ItemEntity(level, this.getX(), this.getEyeY() - 0.4F, this.getZ(), itemStack);
+            this.level.addFreshEntity(itemEntity);
+            this.setCarriedItem(ItemStack.EMPTY);
+        }
     }
 
     @Override
@@ -306,6 +332,19 @@ public class SuspiciousSlime extends Mob implements Enemy {
         }
 
     }
+
+    public void setCarriedItem(ItemStack item){
+        this.entityData.set(CARRIED_ITEM,item);
+    }
+
+    public ItemStack getCarriedItem(){
+        return this.entityData.get(CARRIED_ITEM);
+    }
+
+    public boolean isCarryItemEmpty(){
+        return getCarriedItem().isEmpty();
+    }
+
 
     protected float getStandingEyeHeight(Pose p_33614_, EntityDimensions p_33615_) {
         return 0.625F * p_33615_.height;

@@ -1,25 +1,27 @@
 package com.AutomaticalEchoes.Pretender.client.Renderer;
 
+import com.AutomaticalEchoes.Pretender.Pretender;
+import com.AutomaticalEchoes.Pretender.client.Layer.ItemLayer;
+import com.AutomaticalEchoes.Pretender.client.Layer.SusSlimeOuterLayer;
+import com.AutomaticalEchoes.Pretender.client.model.SusSlimeModel;
 import com.AutomaticalEchoes.Pretender.common.entity.livingEntity.SuspiciousSlime.SuspiciousSlime;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.model.SlimeModel;
-import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
-import net.minecraft.client.renderer.entity.layers.SlimeOuterLayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class SuspiciousSlimeRender extends MobRenderer<SuspiciousSlime, SlimeModel<SuspiciousSlime>> {
-    private static final ResourceLocation SLIME_LOCATION = new ResourceLocation("textures/entity/slime/slime.png");
+public class SuspiciousSlimeRender extends MobRenderer<SuspiciousSlime, SusSlimeModel<SuspiciousSlime>> {
+    private static final ResourceLocation SLIME_LOCATION = new ResourceLocation(Pretender.MOD_ID ,"textures/model/entity/slime.png");
 
     public SuspiciousSlimeRender(EntityRendererProvider.Context p_174391_) {
-        super(p_174391_, new SlimeModel<>(p_174391_.bakeLayer(ModelLayers.SLIME)), 0.25F);
-        this.addLayer(new SlimeOuterLayer<>(this, p_174391_.getModelSet()));
+        super(p_174391_, new SusSlimeModel<>(p_174391_.bakeLayer(SusSlimeModel.LAYER_LOCATION_SLIME)), 0.25F);
+        this.addLayer(new SusSlimeOuterLayer<>(this, p_174391_.getModelSet()));
+        this.addLayer(new ItemLayer<>(this));
     }
 
     public void render(SuspiciousSlime p_115976_, float p_115977_, float p_115978_, PoseStack p_115979_, MultiBufferSource p_115980_, int p_115981_) {

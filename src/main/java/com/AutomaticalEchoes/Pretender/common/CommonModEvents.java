@@ -34,7 +34,6 @@ public class CommonModEvents {
         });
 
         BrewingRecipeRegistry.addRecipe(new PotionBrewingRecipe(PotionRegister.ACIDITY.get(), Items.FERMENTED_SPIDER_EYE,PotionRegister.ACID_EROSION.get()));
-        BrewingRecipeRegistry.addRecipe(new PotionBrewingRecipe(PotionRegister.SUS_WATER.get(),Items.NETHER_WART,PotionRegister.ENTANGLEMENT.get()));
         BrewingRecipeRegistry.addRecipe(new PotionBrewingRecipe(PotionRegister.ACIDITY.get(), ItemsRegister.SUSPICIOUS_SLIME_BALL.get(),PotionRegister.INVALID_ARMOR.get()));
     }
 

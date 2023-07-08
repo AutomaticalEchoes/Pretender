@@ -13,9 +13,6 @@ import net.minecraftforge.registries.RegistryObject;
 
 public class EffectsRegister {
     public static final DeferredRegister<MobEffect> REGISTRY = DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, Pretender.MOD_ID);
-    public static final RegistryObject<MobEffect> ENTANGLEMENT = REGISTRY.register("entanglement",
-            () -> BaseEffect.Create(MobEffectCategory.HARMFUL,5926782)
-                    .addAttributeModifier(Attributes.MOVEMENT_SPEED,"4C708E88-8702-455F-8A0D-8AB3131070BD",(double) -1.0F, AttributeModifier.Operation.MULTIPLY_TOTAL));
     public static final RegistryObject<MobEffect> INVALID_ARMOR=REGISTRY.register("invalid_armor",
             () -> BaseEffect.Create(MobEffectCategory.HARMFUL,5865782)
                     .addAttributeModifier(Attributes.ARMOR,"CB65EE4B-E64E-4BA1-824D-17F328D2E10C",(double) -0.4F, AttributeModifier.Operation.MULTIPLY_TOTAL)

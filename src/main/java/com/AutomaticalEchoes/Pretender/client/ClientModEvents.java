@@ -5,6 +5,7 @@ import com.AutomaticalEchoes.Pretender.Pretender;
 import com.AutomaticalEchoes.Pretender.api.Utils;
 import com.AutomaticalEchoes.Pretender.client.Renderer.SuspiciousSlimeAcidityRender;
 import com.AutomaticalEchoes.Pretender.client.Renderer.SuspiciousSlimeRender;
+import com.AutomaticalEchoes.Pretender.client.model.SusSlimeModel;
 import com.AutomaticalEchoes.Pretender.register.BlockRegister;
 import com.AutomaticalEchoes.Pretender.register.EntityRegister;
 import com.AutomaticalEchoes.Pretender.register.FluidRegister;
@@ -47,6 +48,8 @@ public  class ClientModEvents {
 
     @SubscribeEvent
     public static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
+        event.registerLayerDefinition(SusSlimeModel.LAYER_LOCATION_SLIME,SusSlimeModel::createInnerBodyLayer);
+        event.registerLayerDefinition(SusSlimeModel.LAYER_LOCATION_SLIME_OUTER,SusSlimeModel::createOuterBodyLayer);
     }
 
     @SubscribeEvent
