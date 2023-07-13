@@ -1,6 +1,6 @@
 package com.AutomaticalEchoes.Pretender.common.block;
 
-import com.AutomaticalEchoes.Pretender.api.QuadFunction;
+import com.AutomaticalEchoes.Pretender.api.IFunction;
 import com.AutomaticalEchoes.Pretender.register.ItemsRegister;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvent;
@@ -34,13 +34,13 @@ import java.util.function.Supplier;
 public class NonNewtonianFluidBlock extends HalfTransparentBlock implements BucketPickup {
     private Supplier<? extends  Fluid> fluidSupplier = ForgeRegistries.FLUIDS.getDelegateOrThrow(Fluids.WATER);
     private Supplier<? extends Item> bucketPickupItem = ItemsRegister.SUSPICIOUS_WATER_BUCKET;
-    private QuadFunction<BlockState, BlockGetter, BlockPos, CollisionContext,Boolean> CustomCollisionShape = (state, blockGetter, pos, collisionContext) -> false;
+    private IFunction.QuadFunction<BlockState, BlockGetter, BlockPos, CollisionContext,Boolean> CustomCollisionShape = (state, blockGetter, pos, collisionContext) -> false;
     private double YieldingStress = 1;
     public NonNewtonianFluidBlock(Properties p_49795_) {
         super(p_49795_);
     }
 
-    public NonNewtonianFluidBlock CustomCustomCollisionShape(QuadFunction<BlockState, BlockGetter, BlockPos, CollisionContext,Boolean> customCollisionShape){
+    public NonNewtonianFluidBlock CustomCustomCollisionShape(IFunction.QuadFunction<BlockState, BlockGetter, BlockPos, CollisionContext,Boolean> customCollisionShape){
         this.CustomCollisionShape = customCollisionShape;
         return this;
     }

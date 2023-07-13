@@ -32,7 +32,7 @@ public class FluidRegister {
    public class Type{
         public static final DeferredRegister<FluidType> TYPE_DEFERRED_REGISTER = DeferredRegister.create(ForgeRegistries.Keys.FLUID_TYPES, Pretender.MOD_ID);
         public static final RegistryObject<FluidType> MUCUS = TYPE_DEFERRED_REGISTER.register("mucus", () ->
-                new NonNewtonianFluidType(FluidType.Properties.create()
+                new FunctionFluidType(FluidType.Properties.create()
                         .fallDistanceModifier(0F)
                         .canExtinguish(true)
                         .canSwim(true)
@@ -41,7 +41,7 @@ public class FluidRegister {
                         .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
                         .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
                         .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
-                        .canHydrate(true),0.8F).TintColor(0xA1639C58).FogColor(new Vector3f(99/255f,156/255f,88/255f))
+                        .canHydrate(true), IFunction.FluidFunction::NonNewtonianFluidMove,null).TintColor(0xA1639C58).FogColor(new Vector3f(99/255f,156/255f,88/255f))
                         .Texture(BaseFluidType.I_WATER_OVERLAY).UnderTexture(BaseFluidType.UNDERWATER_LOCATION));
 
        public static final RegistryObject<FluidType> ACIDITY = TYPE_DEFERRED_REGISTER.register("acidity", () ->

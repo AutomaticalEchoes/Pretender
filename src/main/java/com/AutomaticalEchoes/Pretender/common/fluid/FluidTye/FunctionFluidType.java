@@ -1,5 +1,6 @@
 package com.AutomaticalEchoes.Pretender.common.fluid.FluidTye;
 
+import com.AutomaticalEchoes.Pretender.api.IFunction;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.material.FluidState;
@@ -9,14 +10,14 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Function;
 
 public class FunctionFluidType extends BaseFluidType {
-    private @Nullable Function<LivingEntity,Boolean> MoveFunction;
+    private @Nullable IFunction.QuadFunction<FluidState, LivingEntity, Vec3, Double,Boolean> MoveFunction;
     private @Nullable Function<ItemEntity,Boolean> ItemFunction;
     /**
      * Default constructor.
      *
      * @param properties the general properties of the fluid type
      */
-    public FunctionFluidType(Properties properties, @Nullable Function<LivingEntity,Boolean> moveFunction ,@Nullable Function<ItemEntity,Boolean> itemFunction) {
+    public FunctionFluidType(Properties properties, @Nullable IFunction.QuadFunction<FluidState, LivingEntity, Vec3, Double,Boolean> moveFunction ,@Nullable Function<ItemEntity,Boolean> itemFunction) {
         super(properties);
         this.MoveFunction = moveFunction;
         this.ItemFunction = itemFunction;
@@ -26,7 +27,7 @@ public class FunctionFluidType extends BaseFluidType {
 
     @Override
     public boolean move(FluidState state, LivingEntity entity, Vec3 movementVector, double gravity) {
-       if(entity.tickCount % 20 == 0 && MoveFunction !=null)  MoveFunction.apply(entity);
+        if(MoveFunction !=null) return MoveFunction.apply(state,entity,movementVector,gravity);
         return super.move(state, entity, movementVector, gravity);
     }
 
