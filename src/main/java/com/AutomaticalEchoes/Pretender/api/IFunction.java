@@ -33,6 +33,11 @@ public class IFunction{
         float MUCUS_FRICTION = 0.8F;
         int[] ALL = {0, 1, 2, 3};
         int[] PART ={0,1};
+
+        static boolean MucusMove(FluidState state, LivingEntity entity, Vec3 movementVector, double gravity){
+            if(entity instanceof SuspiciousSlime) return false;
+            return NonNewtonianFluidMove(state, entity, movementVector, gravity);
+        }
         static boolean NonNewtonianFluidMove(FluidState state, LivingEntity entity, Vec3 movementVector, double gravity){
             entity.setSprinting(false);
             boolean flag = entity.getDeltaMovement().y <= 0.0D;

@@ -3,37 +3,20 @@ package com.AutomaticalEchoes.Pretender.api;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+
+import javax.annotation.Nullable;
+import java.util.List;
 
 public class Utils {
     public static float RadiusWithSpeed(double dealtMovementL){
         return (float) Math.floor(dealtMovementL * 3);
     }
-    public static Vec3 ReadPos(CompoundTag compoundTag){
-        if(!compoundTag.contains("pos_x") || !compoundTag.contains("pos_y") || !compoundTag.contains("pos_z")){
-            return Vec3.ZERO;
-        }
-        double pos_x = compoundTag.getDouble("pos_x");
-        double pos_y = compoundTag.getDouble("pos_y");
-        double pos_z = compoundTag.getDouble("pos_z");
-        return new Vec3(pos_x,pos_y,pos_z);
-    }
-
-    public static CompoundTag SavePos(Vec3 vec3){
-        CompoundTag compoundTag = new CompoundTag();
-        compoundTag.putDouble("pos_x",vec3.x);
-        compoundTag.putDouble("pos_y",vec3.y);
-        compoundTag.putDouble("pos_z",vec3.z);
-        return compoundTag;
-    }
-
-    public static Vec3 PosToVec(BlockPos blockPos){
-       return new Vec3(blockPos.getX(),blockPos.getY(),blockPos.getZ());
-    }
-
 
     public static BlockPos RandomVecWithRange(LivingEntity livingEntity,double Range){
         return RandomVecWithRange(livingEntity.getRandomX(Range),255,livingEntity.getRandomZ(Range),livingEntity.level);
@@ -52,6 +35,27 @@ public class Utils {
     return BlockPos.ZERO;
     }
 
+
+    @Nullable
+    public static  <T extends Entity> T getNearestEntity(List<? extends T> p_45983_, Entity entity){
+        return getNearestEntity(p_45983_,entity.getX(),entity.getY(),entity.getZ());
+    }
+
+    @Nullable
+    public static  <T extends Entity> T getNearestEntity(List<? extends T> p_45983_, double p_45986_, double p_45987_, double p_45988_) {
+        double d0 = -1.0D;
+        T t = null;
+
+        for(T t1 : p_45983_) {
+            double d1 = t1.distanceToSqr(p_45986_, p_45987_, p_45988_);
+            if (d0 == -1.0D || d1 < d0) {
+                d0 = d1;
+                t = t1;
+            }
+        }
+
+        return t;
+    }
 
 
     public static int IColor(int k){

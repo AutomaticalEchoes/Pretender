@@ -387,8 +387,6 @@ public class SuspiciousSlime extends Mob implements Enemy {
             this.grow(p_32016_.getSize());
             this.playSound(SoundEvents.BUCKET_EMPTY_FISH,1.0F, ((this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F) / 0.8F);
             p_32016_.discard();
-        }else {
-
         }
     }
 
@@ -411,7 +409,6 @@ public class SuspiciousSlime extends Mob implements Enemy {
         acidity.setPos(vec3.x,vec3.y+1.0D, vec3.z);
         this.level.addFreshEntity(acidity);
         acidity.setMoveLand(target.position().subtract(this.position()).scale(0.3));
-        this.getContainer().getItem(0).setCount(0);
         this.tranSmall(1,0,0);
     }
 
@@ -431,7 +428,7 @@ public class SuspiciousSlime extends Mob implements Enemy {
 
     public void tranGrow(){
         if(this.getSize() > 2) return;
-        int i =this.getSize() << 1;
+        int i = this.getSize() << 1;
         SuspiciousSlime slime = translate(i);
         slime.setPos(this.position());
         this.level.addFreshEntity(slime);

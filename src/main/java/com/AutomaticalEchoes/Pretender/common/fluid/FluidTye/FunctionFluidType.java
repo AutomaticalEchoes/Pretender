@@ -27,8 +27,7 @@ public class FunctionFluidType extends BaseFluidType {
 
     @Override
     public boolean move(FluidState state, LivingEntity entity, Vec3 movementVector, double gravity) {
-        if(MoveFunction !=null) return MoveFunction.apply(state,entity,movementVector,gravity);
-        return super.move(state, entity, movementVector, gravity);
+        return MoveFunction !=null && MoveFunction.apply(state,entity,movementVector,gravity);
     }
 
 

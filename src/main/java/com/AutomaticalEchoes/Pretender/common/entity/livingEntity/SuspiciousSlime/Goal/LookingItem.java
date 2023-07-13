@@ -47,7 +47,7 @@ public class LookingItem extends Goal {
     @Override
     public boolean canContinueToUse() {
         assert itemTarget != null;
-        return itemTarget.isAlive() && !slime.hasLineOfSight(itemTarget);
+        return itemTarget.isAlive() && slime.hasLineOfSight(itemTarget);
     }
 
     @Override
