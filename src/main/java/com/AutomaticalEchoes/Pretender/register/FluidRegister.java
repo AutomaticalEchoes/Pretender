@@ -1,7 +1,7 @@
 package com.AutomaticalEchoes.Pretender.register;
 
 import com.AutomaticalEchoes.Pretender.Pretender;
-import com.AutomaticalEchoes.Pretender.api.IFluidFunction;
+import com.AutomaticalEchoes.Pretender.api.IFunction;
 import com.AutomaticalEchoes.Pretender.common.fluid.FluidTye.BaseFluidType;
 import com.AutomaticalEchoes.Pretender.common.fluid.FluidTye.FunctionFluidType;
 import com.AutomaticalEchoes.Pretender.common.fluid.FluidTye.NonNewtonianFluidType;
@@ -33,7 +33,6 @@ public class FluidRegister {
         public static final DeferredRegister<FluidType> TYPE_DEFERRED_REGISTER = DeferredRegister.create(ForgeRegistries.Keys.FLUID_TYPES, Pretender.MOD_ID);
         public static final RegistryObject<FluidType> MUCUS = TYPE_DEFERRED_REGISTER.register("mucus", () ->
                 new NonNewtonianFluidType(FluidType.Properties.create()
-                        .descriptionId("block.minecraft.water")
                         .fallDistanceModifier(0F)
                         .canExtinguish(true)
                         .canSwim(true)
@@ -47,7 +46,6 @@ public class FluidRegister {
 
        public static final RegistryObject<FluidType> ACIDITY = TYPE_DEFERRED_REGISTER.register("acidity", () ->
                new FunctionFluidType(FluidType.Properties.create()
-                       .descriptionId("block.minecraft.water")
                        .fallDistanceModifier(0F)
                        .canExtinguish(true)
                        .canSwim(true)
@@ -58,6 +56,6 @@ public class FluidRegister {
                        .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
                        .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
                        .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
-                       .canHydrate(true), IFluidFunction::HurtArmor,IFluidFunction::Transform).TintColor(0xA1953472).FogColor(new Vector3f(149/255f,52/255f,114/255f)));
+                       .canHydrate(true), IFunction.FluidFunction::HurtArmor, IFunction.FluidFunction::TransformOrSummon).TintColor(0xA1953472).FogColor(new Vector3f(149/255f,52/255f,114/255f)));
     }
 }

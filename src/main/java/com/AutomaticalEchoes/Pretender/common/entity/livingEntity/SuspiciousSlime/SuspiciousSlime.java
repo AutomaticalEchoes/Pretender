@@ -39,14 +39,15 @@ import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 public class SuspiciousSlime extends Mob implements Enemy {
     private static final EntityDataAccessor<Integer> ID_SIZE = SynchedEntityData.defineId(SuspiciousSlime.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<ItemStack> CARRIED_ITEM = SynchedEntityData.defineId(SuspiciousSlime.class ,EntityDataSerializers.ITEM_STACK);
-    private final int TRANSLATE_TICK =20 * ModCommonConfig.SUSPICIOUS_SLIME_TRANSLATE_TICK.get();
+    private static final EntityDataAccessor<Integer> POWER = SynchedEntityData.defineId(SuspiciousSlime.class ,EntityDataSerializers.INT);
+    private final int TRANSLATE_TICK = 20 * ModCommonConfig.SUSPICIOUS_SLIME_TRANSLATE_TICK.get();
     private boolean wasOnGround;
-    private SimpleContainer container =new SimpleContainer(1);
-    private int keepFoodTime = TRANSLATE_TICK;
+    private SimpleContainer container = new SimpleContainer(16);
+    private int translateTick = TRANSLATE_TICK;
     public float targetSquish;
     public float squish;
     public float oSquish;
@@ -54,7 +55,6 @@ public class SuspiciousSlime extends Mob implements Enemy {
     public SuspiciousSlime(EntityType<? extends SuspiciousSlime> p_33588_, Level p_33589_) {
         super(p_33588_, p_33589_);
         this.moveControl=new IMoveControl(this);
-        resetKeepFoodTime();
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -64,7 +64,7 @@ public class SuspiciousSlime extends Mob implements Enemy {
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(ID_SIZE, 1);
-        this.entityData.define(CARRIED_ITEM,ItemStack.EMPTY);
+        this.entityData.define(POWER, 1);
     }
 
     @VisibleForTesting
@@ -82,22 +82,22 @@ public class SuspiciousSlime extends Mob implements Enemy {
         this.xpReward = i;
     }
 
-    public int getSize() {
-        return this.entityData.get(ID_SIZE);
-    }
+
 
     public void addAdditionalSaveData(CompoundTag p_33619_) {
         super.addAdditionalSaveData(p_33619_);
-        p_33619_.putInt("Size", this.getSize() - 1);
+        p_33619_.putInt("size", this.getSize());
+        p_33619_.putInt("power", this.getPower());
         p_33619_.putBoolean("wasOnGround", this.wasOnGround);
-        p_33619_.put("carried_item",this.entityData.get(CARRIED_ITEM).save(new CompoundTag()));
+        p_33619_.put("slimeContainer", this.container.createTag());
     }
 
     public void readAdditionalSaveData(CompoundTag p_33607_) {
-        this.setSize(p_33607_.getInt("Size") + 1, false);
         super.readAdditionalSaveData(p_33607_);
+        this.setSize(p_33607_.getInt("size"),true);
+        this.setPower(p_33607_.getInt("power"));
         this.wasOnGround = p_33607_.getBoolean("wasOnGround");
-        this.setCarriedItem(ItemStack.of(p_33607_.getCompound("carried_item")));
+        this.container.fromTag(p_33607_.getList("slimeContainer",10));
     }
 
     public boolean isTiny() {
@@ -138,19 +138,7 @@ public class SuspiciousSlime extends Mob implements Enemy {
         this.decreaseSquish();
 
         if(this.level.isClientSide) return;
-
-        if(isCarryItemEmpty()) return;
-
-        if(keepFoodTime > 0 ) {
-            keepFoodTime--;
-        }else if(keepFoodTime == 0) {
-            if(this.getSize() < 4){
-                translate();
-            }else if(this.getSize() == 4) {
-                this.setCarriedItem(ItemStack.EMPTY);
-                this.container.addItem(new ItemStack(Items.ARROW));
-            }
-        }
+        translateTick();
 
     }
 
@@ -179,18 +167,9 @@ public class SuspiciousSlime extends Mob implements Enemy {
                 this.doWaterSplashEffect();
             }
         }
-
         super.onSyncedDataUpdated(p_33609_);
     }
 
-    public void pickUpItem(ItemEntity p_21471_) {
-        ItemStack itemstack = p_21471_.getItem();
-        if (this.isCarryItemEmpty()) {
-            this.setCarriedItem(itemstack);
-            p_21471_.discard();
-        }
-
-    }
 
     @Override
     protected void registerGoals() {
@@ -198,113 +177,49 @@ public class SuspiciousSlime extends Mob implements Enemy {
         this.goalSelector.addGoal(2, new AttackGoal(this));
         this.goalSelector.addGoal(4, new RandomDirectionGoal(this));
         this.goalSelector.addGoal(5, new ShootAcidity(this));
-        this.goalSelector.addGoal(6, new KeepJumpingGoal(this));
-        this.goalSelector.addGoal(6, new LookingFoodGoal(this));
-        this.goalSelector.addGoal(6, new EscapeWhileSmallGoal(this));
+        this.goalSelector.addGoal(6, new LookingItem(this));
+        this.goalSelector.addGoal(6, new LookingMergeGoal(this));
+        this.goalSelector.addGoal(7, new EscapeWhileSmallGoal(this));
+        this.goalSelector.addGoal(8, new KeepJumpingGoal(this));
         this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Player.class, 10, true, false, (p_33641_) -> Math.abs(p_33641_.getY() - this.getY()) <= 4.0D));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
     }
 
-
-    public void shootAcidity(){
-        AcidityBall acidity=new AcidityBall(this.level,this);
-        LivingEntity target=this.getTarget();
-        this.getJumpControl().jump();
-        Vec3 vec3=this.position();
-        acidity.setPos(vec3.x,vec3.y+1.0D, vec3.z);
-        this.level.addFreshEntity(acidity);
-        acidity.setMoveLand(target.position().subtract(this.position()).scale(0.3));
-        this.getContainer().getItem(0).setCount(0);
-        this.translate();
-    }
-
-    public void translate(){
-        int i=this.getSize() < 4? this.getSize() << 1:1;
-        Component component = this.getCustomName();
-        SuspiciousSlime slime = EntityRegister.SUSPICIOUS_SLIME.get().create(this.level);
-        if (this.isPersistenceRequired()) {
-            slime.setPersistenceRequired();
-        }
-        slime.setCustomName(component);
-        slime.setSize(i, true);
-        slime.setPos(this.position());
-        this.level.addFreshEntity(slime);
-        this.discard();
-    }
-
-
-
     @Override
-    protected void actuallyHurt(DamageSource p_21240_, float p_21241_) {
-        super.actuallyHurt(p_21240_, p_21241_);
-        resetKeepFoodTime();
-
-    }
-
-    private void resetKeepFoodTime(){
-       if(keepFoodTime!=0) keepFoodTime = TRANSLATE_TICK;
-    }
-
-
-    @Override
-    public void remove(RemovalReason p_149847_) {
-        int i = this.getSize();
-        if (!this.level.isClientSide && i > 1 && this.isDeadOrDying()) {
-            float f = (float)i / 4.0F;
-            int j = i / 2;
-            int k = 1 + this.random.nextInt(3);
-            for(int l = 0; l < k; ++l) {
-                float f1 = ((float)(l % 2) - 0.5F) * f;
-                float f2 = ((float)(l / 2) - 0.5F) * f;
-                tranSmall(j,f1,f2);
-            }
-        }
-
-        this.setRemoved(p_149847_);
-        this.invalidateCaps();
-    }
-
-    public void tranSmall(int size ,float f1,float f2){
-        Component component = this.getCustomName();
-        SuspiciousSlime slime = EntityRegister.SUSPICIOUS_SLIME.get().create(this.level);
-        if (this.isPersistenceRequired()) {
-            slime.setPersistenceRequired();
-        }
-        setContainer(this.getContainer());
-        slime.setCustomName(component);
-        slime.setNoAi(this.isNoAi());
-        slime.setInvulnerable(this.isInvulnerable());
-        slime.setSize(size, true);
-        slime.moveTo(this.getX() + (double)f1, this.getY() + 0.5D, this.getZ() + (double)f2, this.random.nextFloat() * 360.0F, 0.0F);
-        this.level.addFreshEntity(slime);
+    public boolean hurt(DamageSource p_21016_, float p_21017_) {
+        return (p_21016_.isFire() || p_21016_.isMagic()) && super.hurt(p_21016_, p_21017_);
     }
 
     @Override
     public void die(DamageSource p_21014_) {
+        int i = this.getSize();
+        if (!this.level.isClientSide && this.isDeadOrDying()) {
+            if(i > 1){
+                float f = (float)i / 4.0F;
+                int j = i / 2;
+                int k = this.random.nextInt(4);
+                for(int l = 0; l < 4; ++l) {
+                    float f1 = ((float)(l % 2) - 0.5F) * f;
+                    float f2 = ((float)(l / 2) - 0.5F) * f;
+                    if(l == k){
+                        tranSmall(j,f1,f2);
+                    }else {
+                        tranTotalSmall(j,f1,f2);
+                    }
+                }
+            }else {
+                dropCarried();
+            }
+
+        }
+
         super.die(p_21014_);
-        dropCarried();
     }
 
-    public void dropCarried(){
-        if(!isCarryItemEmpty()) {
-            ItemStack itemStack = this.entityData.get(CARRIED_ITEM);
-            ItemEntity itemEntity = new ItemEntity(level, this.getX(), this.getEyeY() - 0.4F, this.getZ(), itemStack);
-            this.level.addFreshEntity(itemEntity);
-            this.setCarriedItem(ItemStack.EMPTY);
-        }
-    }
 
     @Override
     public MobType getMobType() {
         return MobType.UNDEAD;
-    }
-
-    public SimpleContainer getContainer() {
-        return container;
-    }
-
-    public void setContainer(SimpleContainer container){
-        this.container=container;
     }
 
     public void push(Entity p_33636_) {
@@ -332,19 +247,6 @@ public class SuspiciousSlime extends Mob implements Enemy {
         }
 
     }
-
-    public void setCarriedItem(ItemStack item){
-        this.entityData.set(CARRIED_ITEM,item);
-    }
-
-    public ItemStack getCarriedItem(){
-        return this.entityData.get(CARRIED_ITEM);
-    }
-
-    public boolean isCarryItemEmpty(){
-        return getCarriedItem().isEmpty();
-    }
-
 
     protected float getStandingEyeHeight(Pose p_33614_, EntityDimensions p_33615_) {
         return 0.625F * p_33615_.height;
@@ -386,7 +288,6 @@ public class SuspiciousSlime extends Mob implements Enemy {
                 return checkMobSpawnRules(p_219113_, p_219114_, p_219115_, p_219116_, p_219117_);
             }
         }
-
         return false;
     }
 
@@ -433,13 +334,187 @@ public class SuspiciousSlime extends Mob implements Enemy {
      */
     protected boolean spawnCustomParticles() { return false; }
 
+    @Override
+    protected void pickUpItem(ItemEntity p_21471_) {
+        super.pickUpItem(p_21471_);
+    }
+
+
+    //    _______________________________________________________________________________________________________
+
+    public SimpleContainer getContainer() {
+        return container;
+    }
+
+    public void setContainer(SimpleContainer container){
+        this.container=container;
+    }
+
+    public void setPower(int power) {
+        this.entityData.set(POWER,power);
+    }
+
+    public int getSize() {
+        return this.entityData.get(ID_SIZE) ;
+    }
+
+    public int getPower(){
+        return this.entityData.get(POWER);
+    }
+
+    public void grow(int n){
+        int power = getPower() + n;
+        setPower(power);
+
+    }
+
+    public void tryPickUp(ItemEntity itemEntity){
+        ItemStack itemStack = container.addItem(itemEntity.getItem());
+        if(itemStack.getCount() > 0){
+            itemEntity.setItem(itemStack);
+            this.playSound(SoundEvents.ALLAY_ITEM_GIVEN,1.0F, ((this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F) / 0.8F);
+            return;
+        }
+        itemEntity.discard();
+    }
+
+    public boolean isMergable() {
+        return this.getSize() < 4;
+    }
+
+    public void tryToMerge(Slime p_32016_) {
+        if(p_32016_.getSize() <= this.getSize()){
+            this.grow(p_32016_.getSize());
+            this.playSound(SoundEvents.BUCKET_EMPTY_FISH,1.0F, ((this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F) / 0.8F);
+            p_32016_.discard();
+        }else {
+
+        }
+    }
+
+    public void translateTick(){
+        if(translateTick > 0){
+            translateTick --;
+            return;
+        }
+
+        if(this.getSize() < 4 && this.getPower() >= this.getSize() << this.getSize()){
+            this.tranGrow();
+        }
+    }
+
+    public void shootAcidity(){
+        AcidityBall acidity=new AcidityBall(this.level,this);
+        LivingEntity target=this.getTarget();
+        this.getJumpControl().jump();
+        Vec3 vec3=this.position();
+        acidity.setPos(vec3.x,vec3.y+1.0D, vec3.z);
+        this.level.addFreshEntity(acidity);
+        acidity.setMoveLand(target.position().subtract(this.position()).scale(0.3));
+        this.getContainer().getItem(0).setCount(0);
+        this.tranSmall(1,0,0);
+    }
+
+    public SuspiciousSlime translate(int size1){
+        Component component = this.getCustomName();
+        SuspiciousSlime slime = EntityRegister.SUSPICIOUS_SLIME.get().create(this.level);
+        if (this.isPersistenceRequired()) {
+            slime.setPersistenceRequired();
+        }
+        slime.setContainer(this.container);
+        slime.setCustomName(component);
+        slime.setNoAi(this.isNoAi());
+        slime.setInvulnerable(this.isInvulnerable());
+        slime.setSize(size1, true);
+        return slime;
+    }
+
+    public void tranGrow(){
+        if(this.getSize() > 2) return;
+        int i =this.getSize() << 1;
+        SuspiciousSlime slime = translate(i);
+        slime.setPos(this.position());
+        this.level.addFreshEntity(slime);
+
+        this.discard();
+    }
+
+    public void tranTotalSmall(int size ,float f1,float f2){
+        Slime slime = EntityType.SLIME.create(this.level);
+        if (this.isPersistenceRequired()) {
+            slime.setPersistenceRequired();
+        }
+        Component component = this.getCustomName();
+        slime.setCustomName(component);
+        slime.setNoAi(this.isNoAi());
+        slime.setInvulnerable(this.isInvulnerable());
+        slime.setSize(size, true);
+        slime.moveTo(this.getX() + (double)f1, this.getY() + 0.5D, this.getZ() + (double)f2, this.random.nextFloat() * 360.0F, 0.0F);
+        this.level.addFreshEntity(slime);
+    }
+
+    public void tranSmall(int size ,float f1,float f2){
+        SuspiciousSlime slime = translate(size);
+        slime.setPower(size);
+        slime.moveTo(this.getX() + (double)f1, this.getY() + 0.5D, this.getZ() + (double)f2, this.random.nextFloat() * 360.0F, 0.0F);
+        this.level.addFreshEntity(slime);
+    }
+
+
+    public void dropCarried(){
+       if(this.container.isEmpty())return;
+        List<ItemStack> list = this.container.removeAllItems();
+        list.forEach(itemStack -> {
+            ItemEntity drop = drop(itemStack, true, false);
+            if(drop!=null) level.addFreshEntity(drop);
+        });
+    }
+
+
+    @Nullable
+    public ItemEntity drop(ItemStack p_36179_, boolean p_36180_, boolean p_36181_) {
+        if (p_36179_.isEmpty()) {
+            return null;
+        } else {
+            if (this.level.isClientSide) {
+                this.swing(InteractionHand.MAIN_HAND);
+            }
+
+            double d0 = this.getEyeY() - (double)0.3F;
+            ItemEntity itementity = new ItemEntity(this.level, this.getX(), d0, this.getZ(), p_36179_);
+            itementity.setPickUpDelay(40);
+            if (p_36181_) {
+                itementity.setThrower(this.getUUID());
+            }
+
+            if (p_36180_) {
+                float f = this.random.nextFloat() * 0.5F;
+                float f1 = this.random.nextFloat() * ((float)Math.PI * 2F);
+                itementity.setDeltaMovement(-Mth.sin(f1) * f, 0.2F, Mth.cos(f1) * f);
+            } else {
+                float f7 = 0.3F;
+                float f8 = Mth.sin(this.getXRot() * ((float)Math.PI / 180F));
+                float f2 = Mth.cos(this.getXRot() * ((float)Math.PI / 180F));
+                float f3 = Mth.sin(this.getYRot() * ((float)Math.PI / 180F));
+                float f4 = Mth.cos(this.getYRot() * ((float)Math.PI / 180F));
+                float f5 = this.random.nextFloat() * ((float)Math.PI * 2F);
+                float f6 = 0.02F * this.random.nextFloat();
+                itementity.setDeltaMovement((double)(-f3 * f2 * 0.3F) + Math.cos((double)f5) * (double)f6, (double)(-f8 * 0.3F + 0.1F + (this.random.nextFloat() - this.random.nextFloat()) * 0.1F), (double)(f4 * f2 * 0.3F) + Math.sin((double)f5) * (double)f6);
+            }
+
+            return itementity;
+        }
+    }
+
+
     public InteractionResult mobInteract(Player p_28298_, InteractionHand p_28299_) {
         ItemStack itemstack = p_28298_.getItemInHand(p_28299_);
         if(itemstack.is(Items.BUCKET) &&  this.getSize() ==4) {
             p_28298_.playSound(SoundEvents.COW_MILK, 1.0F, 1.0F);
             ItemStack itemstack1 = ItemUtils.createFilledResult(itemstack, p_28298_, ItemsRegister.ACIDITY_BUCKET.get().getDefaultInstance());
             p_28298_.setItemInHand(p_28299_, itemstack1);
-            this.translate();
+            this.tranSmall(1,0,0);
+            this.discard();
             return InteractionResult.sidedSuccess(this.level.isClientSide);
         }else if(itemstack.is(Items.WATER_BUCKET) && this.getSize() !=4){
             p_28298_.playSound(SoundEvents.COW_MILK, 1.0F, 1.0F);

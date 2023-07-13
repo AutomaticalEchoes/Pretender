@@ -1,5 +1,6 @@
 package com.AutomaticalEchoes.Pretender.common.block;
 
+import com.AutomaticalEchoes.Pretender.api.QuadFunction;
 import com.AutomaticalEchoes.Pretender.register.ItemsRegister;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvent;
@@ -33,13 +34,16 @@ import java.util.function.Supplier;
 public class NonNewtonianFluidBlock extends HalfTransparentBlock implements BucketPickup {
     private Supplier<? extends  Fluid> fluidSupplier = ForgeRegistries.FLUIDS.getDelegateOrThrow(Fluids.WATER);
     private Supplier<? extends Item> bucketPickupItem = ItemsRegister.SUSPICIOUS_WATER_BUCKET;
+    private QuadFunction<BlockState, BlockGetter, BlockPos, CollisionContext,Boolean> CustomCollisionShape = (state, blockGetter, pos, collisionContext) -> false;
     private double YieldingStress = 1;
-    public NonNewtonianFluidBlock( Properties p_49795_) {
+    public NonNewtonianFluidBlock(Properties p_49795_) {
         super(p_49795_);
-
     }
 
-
+    public NonNewtonianFluidBlock CustomCustomCollisionShape(QuadFunction<BlockState, BlockGetter, BlockPos, CollisionContext,Boolean> customCollisionShape){
+        this.CustomCollisionShape = customCollisionShape;
+        return this;
+    }
 
     public NonNewtonianFluidBlock YieldingStress(Double yieldingStress){
         this.YieldingStress = yieldingStress;
@@ -58,16 +62,12 @@ public class NonNewtonianFluidBlock extends HalfTransparentBlock implements Buck
 
 
     public VoxelShape getCollisionShape(BlockState p_54760_, BlockGetter p_54761_, BlockPos p_54762_, CollisionContext p_54763_) {
-        if(p_54763_ instanceof EntityCollisionContext collisionContext && collisionContext.getEntity() !=null){
-            Vec3 deltaMovement = collisionContext.getEntity().getDeltaMovement();
-            if(deltaMovement.length() > 0.1 * YieldingStress){
-                return Shapes.block();
-            }
-            if(deltaMovement.y > -0.1 * YieldingStress && Math.abs(deltaMovement.y) < 0.06) {
-                return Shapes.empty();
-            }
-        }
-        return Shapes.empty();
+        boolean flag = true;
+        boolean flag1 = shapeRule(p_54760_, p_54761_, p_54762_, p_54763_);
+        Boolean flag2 = CustomCollisionShape.apply(p_54760_, p_54761_, p_54762_, p_54763_);
+        flag = flag1 ? flag2 : false;
+        return  flag ? Shapes.block() : Shapes.empty();
+
     }
 
     @Override
@@ -120,5 +120,18 @@ public class NonNewtonianFluidBlock extends HalfTransparentBlock implements Buck
     @Override
     public Optional<SoundEvent> getPickupSound() {
         return Optional.empty();
+    }
+
+    private boolean shapeRule(BlockState p_54760_, BlockGetter p_54761_, BlockPos p_54762_, CollisionContext p_54763_){
+        if(p_54763_ instanceof EntityCollisionContext collisionContext && collisionContext.getEntity() !=null){
+            Vec3 deltaMovement = collisionContext.getEntity().getDeltaMovement();
+            if(deltaMovement.length() > 0.1 * YieldingStress){
+                return true;
+            }
+            if(deltaMovement.y > -0.1 * YieldingStress && Math.abs(deltaMovement.y) < 0.06) {
+                return false;
+            }
+        }
+        return false;
     }
 }

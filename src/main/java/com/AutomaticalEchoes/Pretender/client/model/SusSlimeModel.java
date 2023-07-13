@@ -22,7 +22,7 @@ public class SusSlimeModel <T extends Entity> extends HierarchicalModel<T> {
     private final ModelPart root;
 
     public SusSlimeModel(ModelPart p_170955_) {
-        super(RenderType::entityTranslucentEmissive);
+        super(RenderType::entityTranslucent);
         this.root = p_170955_;
     }
 

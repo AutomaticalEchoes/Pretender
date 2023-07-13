@@ -9,7 +9,7 @@
   ],
   "spawners": {
     "type": "pretender:suspicious_slime",
-    "weight": 40,
+    "weight": 4,
     "minCount": 0,
     "maxCount": 1
   }

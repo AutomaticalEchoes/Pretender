@@ -1,6 +1,7 @@
 package com.AutomaticalEchoes.Pretender.common.netWork;
 
 import com.AutomaticalEchoes.Pretender.Pretender;
+import com.AutomaticalEchoes.Pretender.common.CommonModEvents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
@@ -14,6 +15,7 @@ public class PacketHandler {
                 .serverAcceptedVersions(version -> true)
                 .networkProtocolVersion(()->PROTOCOL_VERSION)
                 .simpleChannel();
+        CommonModEvents.CHANNEL = INSTANCE;
         return INSTANCE;
     }
 }
