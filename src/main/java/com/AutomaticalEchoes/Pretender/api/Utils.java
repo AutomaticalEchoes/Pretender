@@ -3,15 +3,19 @@ package com.AutomaticalEchoes.Pretender.api;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.function.Predicate;
 
 public class Utils {
     public static float RadiusWithSpeed(double dealtMovementL){
@@ -33,6 +37,12 @@ public class Utils {
     boolean flag = blockstate.getMaterial().blocksMotion();
     if(flag) return blockpos$mutableblockpos;
     return BlockPos.ZERO;
+    }
+
+
+    public static boolean isContainerFull(Container container){
+        boolean hasEmpty = container.hasAnyMatching(itemStack -> itemStack == ItemStack.EMPTY || itemStack.getCount() < itemStack.getMaxStackSize());
+        return !hasEmpty;
     }
 
 

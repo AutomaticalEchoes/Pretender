@@ -34,15 +34,22 @@ public class IFunction{
         int[] ALL = {0, 1, 2, 3};
         int[] PART ={0,1};
 
+        static boolean MucusItem(ItemEntity itemEntity){
+            itemEntity.setDeltaMovement(itemEntity.getDeltaMovement().scale(0.01));
+            TransformOrSummon(itemEntity);
+            return true;
+        }
+
         static boolean MucusMove(FluidState state, LivingEntity entity, Vec3 movementVector, double gravity){
             if(entity instanceof SuspiciousSlime) return false;
             return NonNewtonianFluidMove(state, entity, movementVector, gravity);
         }
+
         static boolean NonNewtonianFluidMove(FluidState state, LivingEntity entity, Vec3 movementVector, double gravity){
             entity.setSprinting(false);
             boolean flag = entity.getDeltaMovement().y <= 0.0D;
             double d9 = entity.getY();
-            float f1 = entity.isSprinting() ? MUCUS_FRICTION + 0.1F : MUCUS_FRICTION;// 不少于0.6F  unless then 0.6F
+            float f1 = MUCUS_FRICTION;// 不少于0.6F  unless then 0.6F
             float f2 = (float) ((1 - f1) * 10E-5);
             float f3 = (float) (movementVector.length() + f2 * 10) ;
             float f4 =  f2 / f3;

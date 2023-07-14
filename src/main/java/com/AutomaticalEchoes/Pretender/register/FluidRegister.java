@@ -40,7 +40,7 @@ public class FluidRegister {
                         .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
                         .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
                         .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
-                        .canHydrate(true), IFunction.FluidFunction::MucusMove,null).TintColor(0xA1639C58).FogColor(new Vector3f(99/255f,156/255f,88/255f))
+                        .canHydrate(true), IFunction.FluidFunction::MucusMove,IFunction.FluidFunction::MucusItem).TintColor(0xA1639C58).FogColor(new Vector3f(99/255f,156/255f,88/255f))
                         .Texture(BaseFluidType.I_WATER_OVERLAY).UnderTexture(BaseFluidType.UNDERWATER_LOCATION));
 
        public static final RegistryObject<FluidType> ACIDITY = TYPE_DEFERRED_REGISTER.register("acidity", () ->
@@ -55,6 +55,6 @@ public class FluidRegister {
                        .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
                        .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
                        .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
-                       .canHydrate(true), IFunction.FluidFunction::HurtArmor, IFunction.FluidFunction::TransformOrSummon).TintColor(0xA1953472).FogColor(new Vector3f(149/255f,52/255f,114/255f)));
+                       .canHydrate(true), IFunction.FluidFunction::HurtArmor, IFunction.FluidFunction::Transform).TintColor(0xA1953472).FogColor(new Vector3f(149/255f,52/255f,114/255f)));
     }
 }

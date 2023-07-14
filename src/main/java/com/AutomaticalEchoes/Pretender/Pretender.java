@@ -45,11 +45,13 @@ public class Pretender
         // Register the commonSetup method for modloading
 
         // Register the Deferred Register to the mod event bus so blocks get registered
+        PoiTypeRegister.DEFERRED_REGISTER.register(modEventBus);
         FluidRegister.DEFERRED_REGISTER.register(modEventBus);
         FluidRegister.Type.TYPE_DEFERRED_REGISTER.register(modEventBus);
         EffectsRegister.REGISTRY.register(modEventBus);
         EntityRegister.REGISTER.register(modEventBus);
         BlockRegister.DEFERRED_REGISTER.register(modEventBus);
+        BlockRegister.BlockEntityRegister.DEFERRED_REGISTER.register(modEventBus);
         ItemsRegister.REGISTRY.register(modEventBus);
         PotionRegister.REGISTRY.register(modEventBus);
 

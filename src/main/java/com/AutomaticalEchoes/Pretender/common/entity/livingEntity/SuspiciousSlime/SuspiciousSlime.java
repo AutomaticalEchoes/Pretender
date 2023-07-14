@@ -1,12 +1,15 @@
 package com.AutomaticalEchoes.Pretender.common.entity.livingEntity.SuspiciousSlime;
 
+import com.AutomaticalEchoes.Pretender.common.entity.blockEntity.SusSlimeBase;
 import com.AutomaticalEchoes.Pretender.common.entity.livingEntity.SuspiciousSlime.Goal.*;
 import com.AutomaticalEchoes.Pretender.common.entity.projectile.AcidityBall;
 import com.AutomaticalEchoes.Pretender.config.ModCommonConfig;
 import com.AutomaticalEchoes.Pretender.register.EntityRegister;
 import com.AutomaticalEchoes.Pretender.register.ItemsRegister;
+import com.AutomaticalEchoes.Pretender.register.PoiTypeRegister;
 import com.google.common.annotations.VisibleForTesting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Position;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -14,6 +17,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BiomeTags;
@@ -25,6 +29,8 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.ai.village.poi.PoiManager;
+import net.minecraft.world.entity.ai.village.poi.PoiRecord;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Enemy;
@@ -35,19 +41,29 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.*;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class SuspiciousSlime extends Mob implements Enemy {
     private static final EntityDataAccessor<Integer> ID_SIZE = SynchedEntityData.defineId(SuspiciousSlime.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> POWER = SynchedEntityData.defineId(SuspiciousSlime.class ,EntityDataSerializers.INT);
     private final int TRANSLATE_TICK = 20 * ModCommonConfig.SUSPICIOUS_SLIME_TRANSLATE_TICK.get();
+    private @Nullable BlockPos base;
     private boolean wasOnGround;
-    private SimpleContainer container = new SimpleContainer(16);
+    private SimpleContainer container = new SimpleContainer(4);
     private int translateTick = TRANSLATE_TICK;
+    private int wantCollectItem = 400;
+     public LocateSusSlimeBlock locateSusSlimeBlock;
     public float targetSquish;
     public float squish;
     public float oSquish;
@@ -134,6 +150,8 @@ public class SuspiciousSlime extends Mob implements Enemy {
             this.targetSquish = 1.0F;
         }
 
+        if(this.wantCollectItem >=0) wantCollectItem--;
+
         this.wasOnGround = this.onGround;
         this.decreaseSquish();
 
@@ -173,12 +191,15 @@ public class SuspiciousSlime extends Mob implements Enemy {
 
     @Override
     protected void registerGoals() {
+        locateSusSlimeBlock = new LocateSusSlimeBlock(this);
         this.goalSelector.addGoal(1, new IFloatGoal(this));
+        this.goalSelector.addGoal(1, locateSusSlimeBlock);
         this.goalSelector.addGoal(2, new AttackGoal(this));
         this.goalSelector.addGoal(4, new RandomDirectionGoal(this));
         this.goalSelector.addGoal(5, new ShootAcidity(this));
-        this.goalSelector.addGoal(6, new LookingItem(this));
-        this.goalSelector.addGoal(6, new LookingMergeGoal(this));
+        this.goalSelector.addGoal(6, new LocateItem(this));
+        this.goalSelector.addGoal(6, new WantSaveItem(this));
+        this.goalSelector.addGoal(6, new LocateMerge(this));
         this.goalSelector.addGoal(7, new EscapeWhileSmallGoal(this));
         this.goalSelector.addGoal(8, new KeepJumpingGoal(this));
         this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Player.class, 10, true, false, (p_33641_) -> Math.abs(p_33641_.getY() - this.getY()) <= 4.0D));
@@ -362,10 +383,26 @@ public class SuspiciousSlime extends Mob implements Enemy {
         return this.entityData.get(POWER);
     }
 
+    public @Nullable BlockPos getBase() {
+        return base;
+    }
+
+    public void setBase(@Nullable BlockPos base) {
+        this.base = base;
+    }
+
     public void grow(int n){
         int power = getPower() + n;
         setPower(power);
 
+    }
+
+    public boolean wantCollectItem() {
+        return wantCollectItem <= 0;
+    }
+
+    public void setWantCollectItem(int wantCollectItem) {
+        this.wantCollectItem = wantCollectItem;
     }
 
     public void tryPickUp(ItemEntity itemEntity){
@@ -436,6 +473,31 @@ public class SuspiciousSlime extends Mob implements Enemy {
         this.discard();
     }
 
+    public void lookAt(BlockPos p_21392_, float p_21393_, float p_21394_) {
+        double d0 = p_21392_.getX() - this.getX();
+        double d2 = p_21392_.getZ() - this.getZ();
+        double d1 = p_21392_.getY() - this.getEyeY();
+
+        double d3 = Math.sqrt(d0 * d0 + d2 * d2);
+        float f = (float)(Mth.atan2(d2, d0) * (double)(180F / (float)Math.PI)) - 90.0F;
+        float f1 = (float)(-(Mth.atan2(d1, d3) * (double)(180F / (float)Math.PI)));
+        this.setXRot(this.rotlerp(this.getXRot(), f1, p_21394_));
+        this.setYRot(this.rotlerp(this.getYRot(), f, p_21393_));
+    }
+
+    public float rotlerp(float p_21377_, float p_21378_, float p_21379_) {
+        float f = Mth.wrapDegrees(p_21378_ - p_21377_);
+        if (f > p_21379_) {
+            f = p_21379_;
+        }
+
+        if (f < -p_21379_) {
+            f = -p_21379_;
+        }
+
+        return p_21377_ + f;
+    }
+
     public void tranTotalSmall(int size ,float f1,float f2){
         Slime slime = EntityType.SLIME.create(this.level);
         if (this.isPersistenceRequired()) {
@@ -462,47 +524,30 @@ public class SuspiciousSlime extends Mob implements Enemy {
        if(this.container.isEmpty())return;
         List<ItemStack> list = this.container.removeAllItems();
         list.forEach(itemStack -> {
-            ItemEntity drop = drop(itemStack, true, false);
-            if(drop!=null) level.addFreshEntity(drop);
+            Containers.dropItemStack(this.level,this.getX(),this.getY(),this.getZ(),itemStack);
         });
     }
 
+    public void saveItemToBase(){
+        if(this.base == null || !(this.level.getBlockEntity(base) instanceof SusSlimeBase susSlimeBase)) return;
+        List<ItemStack> list = this.container.removeAllItems();
+        List<ItemStack> list1 = new ArrayList<>();
 
-    @Nullable
-    public ItemEntity drop(ItemStack p_36179_, boolean p_36180_, boolean p_36181_) {
-        if (p_36179_.isEmpty()) {
-            return null;
-        } else {
-            if (this.level.isClientSide) {
-                this.swing(InteractionHand.MAIN_HAND);
-            }
+        list.forEach(itemStack -> {
+            ItemStack itemStack1 = susSlimeBase.getContainer().addItem(itemStack);
+            if (itemStack1 != ItemStack.EMPTY) list1.add(itemStack1);
+        });
+        if(list1.isEmpty()) return;
 
-            double d0 = this.getEyeY() - (double)0.3F;
-            ItemEntity itementity = new ItemEntity(this.level, this.getX(), d0, this.getZ(), p_36179_);
-            itementity.setPickUpDelay(40);
-            if (p_36181_) {
-                itementity.setThrower(this.getUUID());
-            }
-
-            if (p_36180_) {
-                float f = this.random.nextFloat() * 0.5F;
-                float f1 = this.random.nextFloat() * ((float)Math.PI * 2F);
-                itementity.setDeltaMovement(-Mth.sin(f1) * f, 0.2F, Mth.cos(f1) * f);
-            } else {
-                float f7 = 0.3F;
-                float f8 = Mth.sin(this.getXRot() * ((float)Math.PI / 180F));
-                float f2 = Mth.cos(this.getXRot() * ((float)Math.PI / 180F));
-                float f3 = Mth.sin(this.getYRot() * ((float)Math.PI / 180F));
-                float f4 = Mth.cos(this.getYRot() * ((float)Math.PI / 180F));
-                float f5 = this.random.nextFloat() * ((float)Math.PI * 2F);
-                float f6 = 0.02F * this.random.nextFloat();
-                itementity.setDeltaMovement((double)(-f3 * f2 * 0.3F) + Math.cos((double)f5) * (double)f6, (double)(-f8 * 0.3F + 0.1F + (this.random.nextFloat() - this.random.nextFloat()) * 0.1F), (double)(f4 * f2 * 0.3F) + Math.sin((double)f5) * (double)f6);
-            }
-
-            return itementity;
-        }
+        list1.forEach(itemStack -> container.addItem(itemStack));
     }
 
+    public List<BlockPos> locateSusSlimeBlock(){
+        BlockPos blockpos = this.blockPosition();
+        PoiManager poimanager = ((ServerLevel)this.level).getPoiManager();
+        Stream<PoiRecord> stream = poimanager.getInRange((p_218130_) -> p_218130_.get() == PoiTypeRegister.SUS_SLIME_BLOCK.get(), blockpos, 20, PoiManager.Occupancy.ANY);
+        return stream.map(PoiRecord::getPos).sorted(Comparator.comparingDouble((p_148811_) -> p_148811_.distSqr(blockpos))).collect(Collectors.toList());
+    }
 
     public InteractionResult mobInteract(Player p_28298_, InteractionHand p_28299_) {
         ItemStack itemstack = p_28298_.getItemInHand(p_28299_);
@@ -517,6 +562,7 @@ public class SuspiciousSlime extends Mob implements Enemy {
             p_28298_.playSound(SoundEvents.COW_MILK, 1.0F, 1.0F);
             ItemStack itemstack1 = ItemUtils.createFilledResult(itemstack, p_28298_, this.getSize() !=1 ? ItemsRegister.MUCUS_BUCKET.get().getDefaultInstance() : ItemsRegister.SUSPICIOUS_WATER_BUCKET.get().getDefaultInstance());
             p_28298_.setItemInHand(p_28299_, itemstack1);
+            this.dropCarried();
             this.discard();
             return InteractionResult.sidedSuccess(this.level.isClientSide);
         }else {
