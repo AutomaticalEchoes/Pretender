@@ -32,7 +32,7 @@ public class BlockRegister {
                     .Properties.of(Material.CLAY, MaterialColor.GRASS)
                     .sound(SoundType.SLIME_BLOCK)
                     .isViewBlocking(BlockRegister::never)
-                    .noOcclusion()).Fluid(FluidRegister.MUCUS).BucketPickupItem(ItemsRegister.MUCUS_BUCKET).CustomCustomCollisionShape(IFunction.BlockFunction::EmptyWithSlime));
+                    .noOcclusion()).Fluid(FluidRegister.MUCUS).BucketPickupItem(ItemsRegister.MUCUS_BUCKET).CustomCustomCollisionShape(IFunction.BlockFunction::EmptyWithSlime).BlockEntity(SusSlimeBase::Create));
 
     public static final RegistryObject<LayeredCauldronBlock> ACIDITY_CAULDRON_BLOCK = DEFERRED_REGISTER.register("acidity_cauldron_block",() ->  new ILayeredCauldronBlock(BlockBehaviour.Properties.copy(Blocks.CAULDRON), LayeredCauldronBlock.RAIN, ICauldronInteraction.ACIDITY).FluidFunction(IFunction.FluidFunction::HurtArmor));
     public static final RegistryObject<LayeredCauldronBlock> MUCUS_CAULDRON_BLOCK = DEFERRED_REGISTER.register("mucus_cauldron_block",() ->  new LayeredCauldronBlock(BlockBehaviour.Properties.copy(Blocks.CAULDRON), LayeredCauldronBlock.RAIN, ICauldronInteraction.MUCUS));
