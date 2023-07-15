@@ -63,7 +63,8 @@ public class SuspiciousSlime extends Mob implements Enemy {
     private SimpleContainer container = new SimpleContainer(4);
     private int translateTick = TRANSLATE_TICK;
     private int wantCollectItem = 400;
-     public LocateSusSlimeBlock locateSusSlimeBlock;
+    private boolean brave = false;
+    public LocateSusSlimeBlock locateSusSlimeBlock;
     public float targetSquish;
     public float squish;
     public float oSquish;
@@ -363,6 +364,15 @@ public class SuspiciousSlime extends Mob implements Enemy {
 
     //    _______________________________________________________________________________________________________
 
+
+    public boolean isBrave() {
+        return brave;
+    }
+
+    public void setBrave(boolean brave) {
+        this.brave = brave;
+    }
+
     public SimpleContainer getContainer() {
         return container;
     }
@@ -440,7 +450,7 @@ public class SuspiciousSlime extends Mob implements Enemy {
 
     public void shootAcidity(){
         AcidityBall acidity=new AcidityBall(this.level,this);
-        LivingEntity target=this.getTarget();
+        LivingEntity target = this.getTarget();
         this.getJumpControl().jump();
         Vec3 vec3=this.position();
         acidity.setPos(vec3.x,vec3.y+1.0D, vec3.z);
@@ -522,10 +532,7 @@ public class SuspiciousSlime extends Mob implements Enemy {
 
     public void dropCarried(){
        if(this.container.isEmpty())return;
-        List<ItemStack> list = this.container.removeAllItems();
-        list.forEach(itemStack -> {
-            Containers.dropItemStack(this.level,this.getX(),this.getY(),this.getZ(),itemStack);
-        });
+        Containers.dropContents(this.level,this,container);
     }
 
     public void saveItemToBase(){

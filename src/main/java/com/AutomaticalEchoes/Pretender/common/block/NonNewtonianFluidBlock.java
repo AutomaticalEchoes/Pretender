@@ -1,6 +1,7 @@
 package com.AutomaticalEchoes.Pretender.common.block;
 
-import com.AutomaticalEchoes.Pretender.api.IFunction;
+import com.AutomaticalEchoes.Pretender.api.Function.IFunction;
+import com.AutomaticalEchoes.Pretender.api.Utils;
 import com.AutomaticalEchoes.Pretender.register.ItemsRegister;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -8,16 +9,14 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.BucketPickup;
-import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.HalfTransparentBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -32,6 +31,7 @@ import net.minecraft.world.phys.shapes.EntityCollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.apache.logging.log4j.util.TriConsumer;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -39,12 +39,18 @@ import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 public class NonNewtonianFluidBlock extends HalfTransparentBlock implements BucketPickup, EntityBlock {
+    public static final VoxelShape STABLE_SHAPE = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 16.0D, 16.0D);
     private Supplier<? extends  Fluid> fluidSupplier = ForgeRegistries.FLUIDS.getDelegateOrThrow(Fluids.WATER);
     private Supplier<? extends Item> bucketPickupItem = ItemsRegister.SUSPICIOUS_WATER_BUCKET;
     private IFunction.QuadFunction<BlockState, BlockGetter, BlockPos, CollisionContext,Boolean> CustomCollisionShape = (state, blockGetter, pos, collisionContext) -> false;
     private BiFunction<BlockPos,BlockState,BlockEntity> blockEntity = (pos, state) -> null;
     private BlockEntityTickerFunc ticker = (level, state, blockEntityType) -> null;
     private GameEventListenerFunc gameEventListener = (serverLevel, blockEntity) -> null;
+    private IFunction.PentConsumer<BlockState , Level , BlockPos , BlockState , Boolean> onRemove = (state, level, pos, state2, aBoolean) -> {
+        if (state.hasBlockEntity() && (!state.is(state2.getBlock()) || !state2.hasBlockEntity())) {
+            level.removeBlockEntity(pos);
+        }
+    };
     private double YieldingStress = 1;
     public NonNewtonianFluidBlock(Properties p_49795_) {
         super(p_49795_);
@@ -75,6 +81,11 @@ public class NonNewtonianFluidBlock extends HalfTransparentBlock implements Buck
         return this;
     }
 
+    public NonNewtonianFluidBlock OnRemove(IFunction.PentConsumer<BlockState,Level,BlockPos,BlockState,Boolean>  onRemove){
+        this.onRemove = onRemove;
+        return this;
+    }
+
     public NonNewtonianFluidBlock Ticker(BlockEntityTickerFunc<? extends BlockEntity> func){
         this.ticker = func;
         return this;
@@ -84,11 +95,8 @@ public class NonNewtonianFluidBlock extends HalfTransparentBlock implements Buck
         return this;
     }
 
-
-
-
     public VoxelShape getCollisionShape(BlockState p_54760_, BlockGetter p_54761_, BlockPos p_54762_, CollisionContext p_54763_) {
-        boolean flag = true;
+        boolean flag;
         boolean flag1 = shapeRule(p_54760_, p_54761_, p_54762_, p_54763_);
         Boolean flag2 = CustomCollisionShape.apply(p_54760_, p_54761_, p_54762_, p_54763_);
         flag = flag1 ? flag2 : false;
@@ -100,7 +108,6 @@ public class NonNewtonianFluidBlock extends HalfTransparentBlock implements Buck
     public VoxelShape getShape(BlockState p_60555_, BlockGetter p_60556_, BlockPos p_60557_, CollisionContext p_60558_) {
         return Shapes.empty();
     }
-
 
     @Override
     public float getFriction(BlockState state, LevelReader level, BlockPos pos, @Nullable Entity entity) {
@@ -148,8 +155,13 @@ public class NonNewtonianFluidBlock extends HalfTransparentBlock implements Buck
         return Optional.empty();
     }
 
+    @Override
+    public void onRemove(BlockState p_60515_, Level p_60516_, BlockPos p_60517_, BlockState p_60518_, boolean p_60519_) {
+        onRemove.apply(p_60515_,p_60516_,p_60517_,p_60518_,p_60519_);
+    }
+
     private boolean shapeRule(BlockState p_54760_, BlockGetter p_54761_, BlockPos p_54762_, CollisionContext p_54763_){
-        if(p_54763_ instanceof EntityCollisionContext collisionContext && collisionContext.getEntity() !=null){
+        if(p_54763_ instanceof EntityCollisionContext collisionContext && collisionContext.getEntity() !=null && !Utils.inside(STABLE_SHAPE, p_54762_, collisionContext.getEntity())){
             Vec3 deltaMovement = collisionContext.getEntity().getDeltaMovement();
             if(deltaMovement.length() > 0.1 * YieldingStress){
                 return true;
@@ -160,6 +172,7 @@ public class NonNewtonianFluidBlock extends HalfTransparentBlock implements Buck
         }
         return false;
     }
+
 
     @Nullable
     @Override

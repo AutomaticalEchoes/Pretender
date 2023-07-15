@@ -1,5 +1,6 @@
 package com.AutomaticalEchoes.Pretender.api;
 
+import com.AutomaticalEchoes.Pretender.common.block.NonNewtonianFluidBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -12,6 +13,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -41,7 +43,7 @@ public class Utils {
 
 
     public static boolean isContainerFull(Container container){
-        boolean hasEmpty = container.hasAnyMatching(itemStack -> itemStack == ItemStack.EMPTY || itemStack.getCount() < itemStack.getMaxStackSize());
+        boolean hasEmpty = container.hasAnyMatching(itemStack -> itemStack.isEmpty() || itemStack.getCount() < itemStack.getMaxStackSize());
         return !hasEmpty;
     }
 
@@ -67,6 +69,9 @@ public class Utils {
         return t;
     }
 
+    public static boolean inside(VoxelShape p_82886_, BlockPos p_82887_,Entity entity){
+        return entity.getBlockStateOn().getBlock() instanceof NonNewtonianFluidBlock;
+    }
 
     public static int IColor(int k){
         float f = 0.0F;

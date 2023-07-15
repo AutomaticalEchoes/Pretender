@@ -1,6 +1,7 @@
 package com.AutomaticalEchoes.Pretender.common.effect;
 
-import com.AutomaticalEchoes.Pretender.api.IFunction;
+import com.AutomaticalEchoes.Pretender.api.Function.FluidFunction;
+import com.AutomaticalEchoes.Pretender.api.Function.IFunction;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
@@ -16,7 +17,7 @@ public class AcidErosion extends MobEffect {
     @Override
     public void applyEffectTick(LivingEntity p_19467_, int p_19468_) {
         if(p_19467_ instanceof Player player){
-            IFunction.FluidFunction.HurtArmor(player);
+            FluidFunction.HurtArmor(player);
         }
     }
 
