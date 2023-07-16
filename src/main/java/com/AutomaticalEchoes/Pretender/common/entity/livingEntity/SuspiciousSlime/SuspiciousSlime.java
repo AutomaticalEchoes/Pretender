@@ -60,8 +60,8 @@ import java.util.stream.Stream;
 public class SuspiciousSlime extends Mob implements Enemy, InventoryCarrier {
     private static final EntityDataAccessor<Integer> ID_SIZE = SynchedEntityData.defineId(SuspiciousSlime.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> POWER = SynchedEntityData.defineId(SuspiciousSlime.class ,EntityDataSerializers.INT);
-    private static final int TRANSLATE_TICK = 20 * ModCommonConfig.SUSPICIOUS_SLIME_TRANSLATE_TICK.get();
-    private static final int COLLECT_TICK = 20 * ModCommonConfig.SUSPICIOUS_SLIME_WANT_COLLECT_TICK.get();
+    private final int TRANSLATE_TICK = 20 * ModCommonConfig.SUSPICIOUS_SLIME_TRANSLATE_TICK.get();
+    private final int COLLECT_TICK = 20 * ModCommonConfig.SUSPICIOUS_SLIME_WANT_COLLECT_TICK.get();
     private @Nullable BlockPos base;
     private boolean wasOnGround;
     private SimpleContainer container = new SimpleContainer(4);
