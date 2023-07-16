@@ -3,7 +3,9 @@ package com.AutomaticalEchoes.Pretender.api.Function;
 import com.AutomaticalEchoes.Pretender.Pretender;
 import com.AutomaticalEchoes.Pretender.common.entity.blockEntity.SusSlimeBase;
 import com.AutomaticalEchoes.Pretender.common.entity.livingEntity.SuspiciousSlime.SuspiciousSlime;
+import com.AutomaticalEchoes.Pretender.config.ModCommonConfig;
 import com.AutomaticalEchoes.Pretender.register.BlockRegister;
+import com.AutomaticalEchoes.Pretender.register.EntityRegister;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -33,16 +35,8 @@ public interface BlockFunction{
     }
 
     static void serverTick(Level p_155145_, BlockPos p_155146_, BlockState p_155147_, SusSlimeBase p_155148_) {
-        if(p_155145_.getBlockTicks().count() % (30 * 1000) ==0){
-            int i = 0;
-            while (p_155148_.getContainer().getItem(i).isEmpty() && i < p_155148_.getContainer().getContainerSize()){
-                i++;
-            }
-            if(i == p_155148_.getContainer().getContainerSize()) return;
-            ItemStack itemStack = p_155148_.getContainer().removeItem(i, 1);
-            ItemEntity itemEntity = new ItemEntity(p_155145_, p_155146_.getX() + 0.5, p_155146_.getY(), p_155146_.getZ() + 0.5, itemStack);
-            p_155145_.addFreshEntity(itemEntity);
-        }
+        p_155148_.summonSusSlime(p_155145_);
+        p_155148_.powerGrow(p_155145_);
     }
 
     static  <T extends BlockEntity> BlockEntityTicker SusSlimeTicker(Level p_153212_, BlockState p_153213_, BlockEntityType<T> p_153214_) {

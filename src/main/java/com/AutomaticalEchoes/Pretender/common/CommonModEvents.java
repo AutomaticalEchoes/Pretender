@@ -12,6 +12,7 @@ import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.common.brewing.BrewingRecipeRegistry;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -41,6 +42,8 @@ public class CommonModEvents {
     public static void registerEntityAttribute(EntityAttributeCreationEvent event){
         event.put(EntityRegister.SUSPICIOUS_SLIME.get(), SuspiciousSlime.createAttributes().build());
     }
+
+
 
 
 

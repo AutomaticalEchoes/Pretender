@@ -15,30 +15,21 @@ public class WantSaveItem extends Goal {
 
     @Override
     public boolean canUse() {
-        if(Utils.isContainerFull(slime.getContainer())){
+        if(Utils.isContainerFull(slime.getInventory())){
             if (slime.getBase() == null) {
                 slime.locateSusSlimeBlock.start();
                 return false;
             }
-            return true;
+            this.blockPos = slime.getBase();
+            return !slime.level.isClientSide && slime.level.getBlockState(blockPos).getBlock() == BlockRegister.SUSPICIOUS_SLIME_BLOCK.get();
         }
         return false;
     }
 
     @Override
-    public boolean canContinueToUse() {
-        return !slime.level.isClientSide && slime.level.getBlockState(blockPos).getBlock() == BlockRegister.SUSPICIOUS_SLIME_BLOCK.get();
-    }
-
-    @Override
-    public void start() {
-        this.blockPos = slime.getBase();
-    }
-
-    @Override
     public void tick() {
         if(slime.blockPosition().distToCenterSqr(blockPos.getX(),blockPos.getY(),blockPos.getZ()) < 1) {
-            slime.setWantCollectItem(60 * 20);
+
             slime.saveItemToBase();
             stop();
         }

@@ -25,7 +25,6 @@ import java.util.Random;
 public class Pretender
 {
     // Define mod id in a common place for everything to reference
-
     public static final String MOD_ID = "pretender";
     public static final String MOD_RESOURCES = "pretender:";
     public static final Random RANDOM = new Random();

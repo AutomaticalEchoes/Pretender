@@ -14,7 +14,7 @@ public class IFloatGoal extends Goal {
     }
 
     public boolean canUse() {
-        return (this.slime.isInWater() || this.slime.isInLava()) && this.slime.getMoveControl() instanceof IMoveControl;
+        return (this.slime.isInWater() || this.slime.isInLava() || this.slime.isInMucus()) && this.slime.getMoveControl() instanceof IMoveControl;
     }
 
     public boolean requiresUpdateEveryTick() {

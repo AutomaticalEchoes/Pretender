@@ -28,7 +28,7 @@ public class LocateItem extends Goal {
                 @Override
                 public boolean test(Entity entity) {
                     if(entity instanceof ItemEntity itemEntity){
-                        return slime.getContainer().canAddItem(itemEntity.getItem());
+                        return slime.getInventory().canAddItem(itemEntity.getItem());
                     }
                     return false;
                 }

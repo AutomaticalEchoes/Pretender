@@ -20,7 +20,7 @@ public class ShootAcidity extends Goal {
                 && suspiciousSlime.isBrave()
                 && suspiciousSlime.hasLineOfSight(suspiciousSlime.getTarget())
                 && suspiciousSlime.distanceTo(suspiciousSlime.getTarget()) < ModCommonConfig.SUSPICIOUS_SLIME_ACIDITY_DISTANCE.get()
-                && suspiciousSlime.getContainer().getItem(0).getCount() > 0;
+                && suspiciousSlime.getInventory().getItem(0).getCount() > 0;
     }
 
     @Override

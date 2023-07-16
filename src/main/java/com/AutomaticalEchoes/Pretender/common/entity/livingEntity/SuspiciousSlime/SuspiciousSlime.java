@@ -5,6 +5,7 @@ import com.AutomaticalEchoes.Pretender.common.entity.livingEntity.SuspiciousSlim
 import com.AutomaticalEchoes.Pretender.common.entity.projectile.AcidityBall;
 import com.AutomaticalEchoes.Pretender.config.ModCommonConfig;
 import com.AutomaticalEchoes.Pretender.register.EntityRegister;
+import com.AutomaticalEchoes.Pretender.register.FluidRegister;
 import com.AutomaticalEchoes.Pretender.register.ItemsRegister;
 import com.AutomaticalEchoes.Pretender.register.PoiTypeRegister;
 import com.google.common.annotations.VisibleForTesting;
@@ -36,6 +37,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.Slime;
+import net.minecraft.world.entity.npc.InventoryCarrier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
@@ -44,6 +46,7 @@ import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.fluids.FluidType;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -54,15 +57,16 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class SuspiciousSlime extends Mob implements Enemy {
+public class SuspiciousSlime extends Mob implements Enemy, InventoryCarrier {
     private static final EntityDataAccessor<Integer> ID_SIZE = SynchedEntityData.defineId(SuspiciousSlime.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> POWER = SynchedEntityData.defineId(SuspiciousSlime.class ,EntityDataSerializers.INT);
-    private final int TRANSLATE_TICK = 20 * ModCommonConfig.SUSPICIOUS_SLIME_TRANSLATE_TICK.get();
+    private static final int TRANSLATE_TICK = 20 * ModCommonConfig.SUSPICIOUS_SLIME_TRANSLATE_TICK.get();
+    private static final int COLLECT_TICK = 20 * ModCommonConfig.SUSPICIOUS_SLIME_WANT_COLLECT_TICK.get();
     private @Nullable BlockPos base;
     private boolean wasOnGround;
     private SimpleContainer container = new SimpleContainer(4);
     private int translateTick = TRANSLATE_TICK;
-    private int wantCollectItem = 400;
+    private int wantCollectItem = COLLECT_TICK;
     private boolean brave = false;
     public LocateSusSlimeBlock locateSusSlimeBlock;
     public float targetSquish;
@@ -231,6 +235,7 @@ public class SuspiciousSlime extends Mob implements Enemy {
                 }
             }else {
                 dropCarried();
+                Containers.dropItemStack(this.level,getX(),getY(),getZ(),new ItemStack(ItemsRegister.SUSPICIOUS_SLIME_BALL.get()));
             }
 
         }
@@ -373,12 +378,12 @@ public class SuspiciousSlime extends Mob implements Enemy {
         this.brave = brave;
     }
 
-    public SimpleContainer getContainer() {
+    public SimpleContainer getInventory() {
         return container;
     }
 
-    public void setContainer(SimpleContainer container){
-        this.container=container;
+    public void setContainer(SimpleContainer simpleContainer) {
+        this.container = simpleContainer;
     }
 
     public void setPower(int power) {
@@ -404,7 +409,10 @@ public class SuspiciousSlime extends Mob implements Enemy {
     public void grow(int n){
         int power = getPower() + n;
         setPower(power);
+    }
 
+    public boolean isInMucus(){
+        return !firstTick && this.forgeFluidTypeHeight.getDouble(FluidRegister.Type.MUCUS.get()) > 0.0D;
     }
 
     public boolean wantCollectItem() {
@@ -544,6 +552,9 @@ public class SuspiciousSlime extends Mob implements Enemy {
             ItemStack itemStack1 = susSlimeBase.getContainer().addItem(itemStack);
             if (itemStack1 != ItemStack.EMPTY) list1.add(itemStack1);
         });
+        susSlimeBase.setChanged();
+
+        setWantCollectItem(COLLECT_TICK);
         if(list1.isEmpty()) return;
 
         list1.forEach(itemStack -> container.addItem(itemStack));
