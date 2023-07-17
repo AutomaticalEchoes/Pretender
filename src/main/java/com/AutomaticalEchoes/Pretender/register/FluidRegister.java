@@ -1,8 +1,7 @@
 package com.AutomaticalEchoes.Pretender.register;
 
-import com.AutomaticalEchoes.Pretender.Pretender;
+import com.AutomaticalEchoes.Pretender.PretenderSlime;
 import com.AutomaticalEchoes.Pretender.api.Function.FluidFunction;
-import com.AutomaticalEchoes.Pretender.api.Function.IFunction;
 import com.AutomaticalEchoes.Pretender.common.fluid.FluidTye.BaseFluidType;
 import com.AutomaticalEchoes.Pretender.common.fluid.FluidTye.FunctionFluidType;
 import com.AutomaticalEchoes.Pretender.common.fluid.NonNewtonianFluid;
@@ -18,7 +17,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 public class FluidRegister {
-    public static final DeferredRegister<Fluid> DEFERRED_REGISTER = DeferredRegister.create(ForgeRegistries.FLUIDS, Pretender.MOD_ID);
+    public static final DeferredRegister<Fluid> DEFERRED_REGISTER = DeferredRegister.create(ForgeRegistries.FLUIDS, PretenderSlime.MOD_ID);
     public static final RegistryObject<FlowingFluid> ACIDITY = DEFERRED_REGISTER.register("acidity", () -> new ForgeFlowingFluid.Source(FluidRegister.ACIDITY_PROPERTIES));
     public static final RegistryObject<FlowingFluid> ACIDITY_FLOW = DEFERRED_REGISTER.register("acidity_flow",() -> new ForgeFlowingFluid.Flowing(FluidRegister.ACIDITY_PROPERTIES));
     public static final RegistryObject<NonNewtonianFluid> MUCUS = DEFERRED_REGISTER.register("mucus", () -> new NonNewtonianFluid().LegacyBlock(BlockRegister.SUSPICIOUS_SLIME_BLOCK).FluidType(Type.MUCUS));
@@ -30,7 +29,7 @@ public class FluidRegister {
             .slopeFindDistance(2)
             .levelDecreasePerBlock(2);
    public class Type{
-        public static final DeferredRegister<FluidType> TYPE_DEFERRED_REGISTER = DeferredRegister.create(ForgeRegistries.Keys.FLUID_TYPES, Pretender.MOD_ID);
+        public static final DeferredRegister<FluidType> TYPE_DEFERRED_REGISTER = DeferredRegister.create(ForgeRegistries.Keys.FLUID_TYPES, PretenderSlime.MOD_ID);
         public static final RegistryObject<FluidType> MUCUS = TYPE_DEFERRED_REGISTER.register("mucus", () ->
                 new FunctionFluidType(FluidType.Properties.create()
                         .fallDistanceModifier(0F)

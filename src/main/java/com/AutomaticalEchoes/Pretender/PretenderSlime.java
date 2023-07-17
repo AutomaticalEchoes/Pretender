@@ -21,8 +21,8 @@ import java.util.Random;
 
 
 // The value here should match an entry in the META-INF/mods.toml file
-@Mod(Pretender.MOD_ID)
-public class Pretender
+@Mod(PretenderSlime.MOD_ID)
+public class PretenderSlime
 {
     // Define mod id in a common place for everything to reference
     public static final String MOD_ID = "pretender";
@@ -37,7 +37,7 @@ public class Pretender
     // Directly reference a slf4j logger
    public static final Logger LOGGER = LogUtils.getLogger();
 
-    public Pretender()
+    public PretenderSlime()
     {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 

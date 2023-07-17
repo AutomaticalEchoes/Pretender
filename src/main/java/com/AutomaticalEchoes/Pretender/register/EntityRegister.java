@@ -1,6 +1,6 @@
 package com.AutomaticalEchoes.Pretender.register;
 
-import com.AutomaticalEchoes.Pretender.Pretender;
+import com.AutomaticalEchoes.Pretender.PretenderSlime;
 import com.AutomaticalEchoes.Pretender.common.entity.livingEntity.SuspiciousSlime.SuspiciousSlime;
 import com.AutomaticalEchoes.Pretender.common.entity.projectile.AcidityBall;
 import net.minecraft.world.entity.EntityType;
@@ -12,7 +12,7 @@ import net.minecraftforge.registries.RegistryObject;
 
 @Mod.EventBusSubscriber(bus=Mod.EventBusSubscriber.Bus.MOD)
 public class EntityRegister {
-    public static final DeferredRegister<EntityType<?>> REGISTER= DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, Pretender.MOD_ID);
+    public static final DeferredRegister<EntityType<?>> REGISTER= DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, PretenderSlime.MOD_ID);
     public static final RegistryObject<EntityType<AcidityBall>> ACIDITY=REGISTER.register("acidity",
             () -> EntityType.Builder.of(AcidityBall::Create,MobCategory.MISC).sized(0.5F,0.5F)
                     .build("acidity"));

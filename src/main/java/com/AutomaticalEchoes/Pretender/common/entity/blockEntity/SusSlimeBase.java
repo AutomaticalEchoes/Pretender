@@ -1,14 +1,11 @@
 package com.AutomaticalEchoes.Pretender.common.entity.blockEntity;
 
-import com.AutomaticalEchoes.Pretender.Pretender;
 import com.AutomaticalEchoes.Pretender.common.entity.livingEntity.SuspiciousSlime.SuspiciousSlime;
 import com.AutomaticalEchoes.Pretender.config.ModCommonConfig;
 import com.AutomaticalEchoes.Pretender.register.BlockRegister;
 import com.AutomaticalEchoes.Pretender.register.EntityRegister;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.*;

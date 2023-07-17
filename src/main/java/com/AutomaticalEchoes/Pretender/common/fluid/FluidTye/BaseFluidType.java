@@ -1,6 +1,6 @@
 package com.AutomaticalEchoes.Pretender.common.fluid.FluidTye;
 
-import com.AutomaticalEchoes.Pretender.Pretender;
+import com.AutomaticalEchoes.Pretender.PretenderSlime;
 import com.mojang.blaze3d.shaders.FogShape;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.math.Vector3f;
@@ -21,7 +21,7 @@ public class BaseFluidType extends FluidType {
             WATER_STILL = new ResourceLocation("block/water_still"),
             WATER_FLOW = new ResourceLocation("block/water_flow"),
             WATER_OVERLAY = new ResourceLocation("block/water_overlay"),
-            I_WATER_OVERLAY = new ResourceLocation(Pretender.MOD_RESOURCES + "block/water_overlay");
+            I_WATER_OVERLAY = new ResourceLocation(PretenderSlime.MOD_RESOURCES + "block/water_overlay");
 
     private ResourceLocation StillTexture = WATER_STILL;
     private ResourceLocation FlowingTexture = WATER_FLOW;

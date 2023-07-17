@@ -1,6 +1,6 @@
 package com.AutomaticalEchoes.Pretender.register;
 
-import com.AutomaticalEchoes.Pretender.Pretender;
+import com.AutomaticalEchoes.Pretender.PretenderSlime;
 import com.AutomaticalEchoes.Pretender.common.effect.AcidErosion;
 import com.AutomaticalEchoes.Pretender.common.effect.BaseEffect;
 import net.minecraft.world.effect.MobEffect;
@@ -12,7 +12,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 public class EffectsRegister {
-    public static final DeferredRegister<MobEffect> REGISTRY = DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, Pretender.MOD_ID);
+    public static final DeferredRegister<MobEffect> REGISTRY = DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, PretenderSlime.MOD_ID);
     public static final RegistryObject<MobEffect> INVALID_ARMOR=REGISTRY.register("invalid_armor",
             () -> BaseEffect.Create(MobEffectCategory.HARMFUL,5865782)
                     .addAttributeModifier(Attributes.ARMOR,"CB65EE4B-E64E-4BA1-824D-17F328D2E10C",(double) -0.4F, AttributeModifier.Operation.MULTIPLY_TOTAL)

@@ -1,6 +1,6 @@
 package com.AutomaticalEchoes.Pretender.common.entity.livingEntity.SuspiciousSlime.Goal;
 
-import com.AutomaticalEchoes.Pretender.Pretender;
+import com.AutomaticalEchoes.Pretender.PretenderSlime;
 import com.AutomaticalEchoes.Pretender.common.entity.livingEntity.SuspiciousSlime.SuspiciousSlime;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.player.Player;
@@ -28,6 +28,6 @@ public class EscapeWhileSmallGoal extends Goal{
     public void tick() {
         float rot=this.slime.getTarget().getYRot();
         if(((IMoveControl)slime.getMoveControl()).getJumpDelay() <= 0)
-        ((IMoveControl)slime.getMoveControl()).setDirection(Pretender.RANDOM.nextFloat(rot-60,rot+60),false,true);
+        ((IMoveControl)slime.getMoveControl()).setDirection(PretenderSlime.RANDOM.nextFloat(rot-60,rot+60),false,true);
     }
 }

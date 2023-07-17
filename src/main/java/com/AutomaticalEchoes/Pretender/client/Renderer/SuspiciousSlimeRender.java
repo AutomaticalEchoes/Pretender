@@ -1,6 +1,6 @@
 package com.AutomaticalEchoes.Pretender.client.Renderer;
 
-import com.AutomaticalEchoes.Pretender.Pretender;
+import com.AutomaticalEchoes.Pretender.PretenderSlime;
 import com.AutomaticalEchoes.Pretender.client.Layer.SusSlimeOuterLayer;
 import com.AutomaticalEchoes.Pretender.client.model.SusSlimeModel;
 import com.AutomaticalEchoes.Pretender.common.entity.livingEntity.SuspiciousSlime.SuspiciousSlime;
@@ -20,7 +20,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class SuspiciousSlimeRender extends MobRenderer<SuspiciousSlime, SusSlimeModel<SuspiciousSlime>> {
-    private static final ResourceLocation SLIME_LOCATION = new ResourceLocation(Pretender.MOD_ID ,"textures/model/entity/slime.png");
+    private static final ResourceLocation SLIME_LOCATION = new ResourceLocation(PretenderSlime.MOD_ID ,"textures/model/entity/slime.png");
     private final ItemRenderer itemRenderer;
     public SuspiciousSlimeRender(EntityRendererProvider.Context p_174391_) {
         super(p_174391_, new SusSlimeModel<>(p_174391_.bakeLayer(SusSlimeModel.LAYER_LOCATION_SLIME)), 0.25F);

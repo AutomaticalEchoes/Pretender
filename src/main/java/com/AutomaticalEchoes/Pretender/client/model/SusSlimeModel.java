@@ -1,6 +1,6 @@
 package com.AutomaticalEchoes.Pretender.client.model;
 
-import com.AutomaticalEchoes.Pretender.Pretender;
+import com.AutomaticalEchoes.Pretender.PretenderSlime;
 import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
@@ -17,8 +17,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class SusSlimeModel <T extends Entity> extends HierarchicalModel<T> {
-    public static final ModelLayerLocation LAYER_LOCATION_SLIME= new ModelLayerLocation(new ResourceLocation(Pretender.MOD_ID, "sus_slime"), "inner");
-    public static final ModelLayerLocation LAYER_LOCATION_SLIME_OUTER= new ModelLayerLocation(new ResourceLocation(Pretender.MOD_ID, "sus_slime"), "outer");
+    public static final ModelLayerLocation LAYER_LOCATION_SLIME= new ModelLayerLocation(new ResourceLocation(PretenderSlime.MOD_ID, "sus_slime"), "inner");
+    public static final ModelLayerLocation LAYER_LOCATION_SLIME_OUTER= new ModelLayerLocation(new ResourceLocation(PretenderSlime.MOD_ID, "sus_slime"), "outer");
     private final ModelPart root;
 
     public SusSlimeModel(ModelPart p_170955_) {

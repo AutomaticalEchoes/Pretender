@@ -1,7 +1,7 @@
 package com.AutomaticalEchoes.Pretender.client;
 
 
-import com.AutomaticalEchoes.Pretender.Pretender;
+import com.AutomaticalEchoes.Pretender.PretenderSlime;
 import com.AutomaticalEchoes.Pretender.api.Utils;
 import com.AutomaticalEchoes.Pretender.client.Renderer.SuspiciousSlimeAcidityRender;
 import com.AutomaticalEchoes.Pretender.client.Renderer.SuspiciousSlimeRender;
@@ -25,7 +25,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
 
 // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
-@Mod.EventBusSubscriber(modid = Pretender.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+@Mod.EventBusSubscriber(modid = PretenderSlime.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public  class ClientModEvents {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event)

@@ -1,10 +1,9 @@
 package com.AutomaticalEchoes.Pretender.register;
 
-import com.AutomaticalEchoes.Pretender.Pretender;
+import com.AutomaticalEchoes.Pretender.PretenderSlime;
 import com.AutomaticalEchoes.Pretender.api.Function.BlockFunction;
 import com.AutomaticalEchoes.Pretender.api.Function.FluidFunction;
 import com.AutomaticalEchoes.Pretender.api.ICauldronInteraction;
-import com.AutomaticalEchoes.Pretender.api.Function.IFunction;
 import com.AutomaticalEchoes.Pretender.common.block.ILayeredCauldronBlock;
 import com.AutomaticalEchoes.Pretender.common.block.NonNewtonianFluidBlock;
 import com.AutomaticalEchoes.Pretender.common.entity.blockEntity.SusSlimeBase;
@@ -21,7 +20,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 public class BlockRegister {
-    public static final DeferredRegister<Block> DEFERRED_REGISTER =DeferredRegister.create(ForgeRegistries.BLOCKS , Pretender.MOD_ID);
+    public static final DeferredRegister<Block> DEFERRED_REGISTER =DeferredRegister.create(ForgeRegistries.BLOCKS , PretenderSlime.MOD_ID);
     public static final RegistryObject<LiquidBlock> ACIDITY = DEFERRED_REGISTER.register("acidity",() -> new LiquidBlock(FluidRegister.ACIDITY, BlockBehaviour.Properties.of(Material.WATER).lightLevel(value -> 4).noCollission().strength(100.0F).noLootTable()));
     public static final RegistryObject<NonNewtonianFluidBlock> SUSPICIOUS_WATER = DEFERRED_REGISTER.register("suspicious_water",() -> new NonNewtonianFluidBlock(BlockBehaviour.Properties.of(Material.WATER).lightLevel(value -> 9).noCollission().strength(100.0F).noLootTable()));
     public static final RegistryObject<NonNewtonianFluidBlock> SUSPICIOUS_SLIME_BLOCK = DEFERRED_REGISTER.register("suspicious_slime_block",
@@ -40,7 +39,7 @@ public class BlockRegister {
     }
 
     public class BlockEntityRegister{
-        public static final DeferredRegister<BlockEntityType<?>> DEFERRED_REGISTER =DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES , Pretender.MOD_ID);
+        public static final DeferredRegister<BlockEntityType<?>> DEFERRED_REGISTER =DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES , PretenderSlime.MOD_ID);
         public static final RegistryObject<BlockEntityType<SusSlimeBase>> SUS_SLIME_BASE = DEFERRED_REGISTER.register("sus_slime_base", () -> {
             return BlockEntityType.Builder.of(SusSlimeBase::Create, SUSPICIOUS_SLIME_BLOCK.get()).build(null);
         });
