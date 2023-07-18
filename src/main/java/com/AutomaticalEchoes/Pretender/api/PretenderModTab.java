@@ -9,7 +9,6 @@ public class PretenderModTab extends CreativeModeTab {
         super(label);
     }
 
-    @Override
     public ItemStack makeIcon() {
         return  new ItemStack(Items.CREEPER_BANNER_PATTERN);
     }
