@@ -1,6 +1,5 @@
 package com.AutomaticalEchoes.Pretender;
 
-import com.AutomaticalEchoes.Pretender.api.PretenderModTab;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -19,7 +18,12 @@ public class PretenderBase {
     // Define mod id in a common place for everything to reference
 
     public static final String MOD_ID = "pretender";
-    public static final CreativeModeTab PRETENDER_ITEM_TAB = new PretenderModTab("Pretender");
+    public static final CreativeModeTab PRETENDER_ITEM_TAB = new CreativeModeTab("Pretender") {
+        @Override
+        public ItemStack makeIcon() {
+            return Items.CREEPER_BANNER_PATTERN.getDefaultInstance();
+        }
+    };
     public PretenderBase()
     {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
