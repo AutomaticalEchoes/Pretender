@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "" :{
+          "model": "pretender_slime:block/suspicious_slime_block"
+        }
+  }
+}

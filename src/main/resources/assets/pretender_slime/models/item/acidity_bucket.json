@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "pretender_slime:item/acidity_bucket"
+  }
+}
