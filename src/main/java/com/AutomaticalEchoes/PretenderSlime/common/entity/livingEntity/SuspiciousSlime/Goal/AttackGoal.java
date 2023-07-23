@@ -20,7 +20,7 @@ public class AttackGoal extends Goal {
         if (livingentity == null) {
             return false;
         } else {
-            return this.slime.getSize() == 4 && this.slime.canAttack(livingentity) && this.slime.getMoveControl() instanceof IMoveControl;
+            return this.slime.isBrave() && this.slime.canAttack(livingentity) && this.slime.getMoveControl() instanceof IMoveControl;
         }
     }
 

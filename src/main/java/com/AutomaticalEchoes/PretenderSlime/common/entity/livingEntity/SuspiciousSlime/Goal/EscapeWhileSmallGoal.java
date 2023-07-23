@@ -14,10 +14,11 @@ public class EscapeWhileSmallGoal extends Goal{
     }
 
     public boolean canUse() {
-        return this.slime.getSize()<4
-                && this.slime.getTarget() instanceof Player
-                && this.slime.getTarget().hasLineOfSight(slime)
-                && !this.slime.isPassenger();
+        return this.slime.getSize() < 4
+                && !slime.isBrave()
+                && !slime.isPassenger()
+                && slime.getTarget() instanceof Player
+                && slime.getTarget().hasLineOfSight(slime);
     }
 
     @Override

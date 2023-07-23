@@ -14,13 +14,12 @@ public class ShootAcidity extends Goal {
 
     @Override
     public boolean canUse() {
-        return suspiciousSlime.getSize()==4
-                && !suspiciousSlime.isInFluidType(Fluids.WATER.getFluidType())
+        return  !suspiciousSlime.isInFluidType(Fluids.WATER.getFluidType())
                 && suspiciousSlime.getTarget()!=null
                 && suspiciousSlime.isBrave()
                 && suspiciousSlime.hasLineOfSight(suspiciousSlime.getTarget())
                 && suspiciousSlime.distanceTo(suspiciousSlime.getTarget()) < ModCommonConfig.SUSPICIOUS_SLIME_ACIDITY_DISTANCE.get()
-                && suspiciousSlime.getInventory().getItem(0).getCount() > 0;
+                && suspiciousSlime.canShootAcidity();
     }
 
     @Override

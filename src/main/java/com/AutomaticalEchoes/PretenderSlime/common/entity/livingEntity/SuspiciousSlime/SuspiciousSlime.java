@@ -57,11 +57,13 @@ public class SuspiciousSlime extends Mob implements Enemy, InventoryCarrier {
     private static final EntityDataAccessor<Integer> POWER = SynchedEntityData.defineId(SuspiciousSlime.class ,EntityDataSerializers.INT);
     private final int TRANSLATE_TICK = 20 * ModCommonConfig.SUSPICIOUS_SLIME_TRANSLATE_TICK.get();
     private final int COLLECT_TICK = 20 * ModCommonConfig.SUSPICIOUS_SLIME_WANT_COLLECT_TICK.get();
+    private final int ACIDITY_PREPARE_TICK = 20 * ModCommonConfig.SUSPICIOUS_SLIME_ACIDITY_AREA_EFFECT_DURATION_TIME .get() * 10;
     private @Nullable BlockPos base;
     private boolean wasOnGround;
     private SimpleContainer container = new SimpleContainer(4);
     private int translateTick = TRANSLATE_TICK;
     private int wantCollectItem = COLLECT_TICK;
+    private int acidityPrepareTime = ACIDITY_PREPARE_TICK;
     private boolean brave = false;
     public LocateSusSlimeBlock locateSusSlimeBlock;
     public float targetSquish;
@@ -151,7 +153,7 @@ public class SuspiciousSlime extends Mob implements Enemy, InventoryCarrier {
         }
 
         if(this.wantCollectItem >=0) wantCollectItem--;
-
+        if(this.acidityPrepareTime >=0) acidityPrepareTime--;
         this.wasOnGround = this.onGround;
         this.decreaseSquish();
 
@@ -432,6 +434,10 @@ public class SuspiciousSlime extends Mob implements Enemy, InventoryCarrier {
         return this.getSize() < 4;
     }
 
+    public boolean canShootAcidity(){
+        return acidityPrepareTime <= 0;
+    }
+
     public void tryToMerge(Slime p_32016_) {
         if(p_32016_.getSize() <= this.getSize()){
             this.grow(p_32016_.getSize());
@@ -441,7 +447,7 @@ public class SuspiciousSlime extends Mob implements Enemy, InventoryCarrier {
     }
 
     public void translateTick(){
-        if(translateTick > 0){
+        if(translateTick >= 0){
             translateTick --;
             return;
         }
@@ -459,7 +465,7 @@ public class SuspiciousSlime extends Mob implements Enemy, InventoryCarrier {
         acidity.setPos(vec3.x,vec3.y+1.0D, vec3.z);
         this.level.addFreshEntity(acidity);
         acidity.setMoveLand(target.position().subtract(this.position()).scale(0.3));
-        this.tranSmall(1,0,0);
+        this.acidityPrepareTime = ACIDITY_PREPARE_TICK;
     }
 
     public SuspiciousSlime translate(int size1){

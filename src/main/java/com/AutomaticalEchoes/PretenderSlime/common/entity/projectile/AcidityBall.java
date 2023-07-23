@@ -1,5 +1,6 @@
 package com.AutomaticalEchoes.PretenderSlime.common.entity.projectile;
 
+import com.AutomaticalEchoes.PretenderSlime.common.entity.livingEntity.SuspiciousSlime.SuspiciousSlime;
 import com.AutomaticalEchoes.PretenderSlime.config.ModCommonConfig;
 import com.AutomaticalEchoes.PretenderSlime.register.EffectsRegister;
 import com.AutomaticalEchoes.PretenderSlime.register.EntityRegister;
@@ -22,7 +23,7 @@ import java.util.List;
 
 public class AcidityBall extends AbstractHurtingProjectile {
     private final float radius = ModCommonConfig.SUSPICIOUS_SLIME_ACIDITY_AREA_EFFECT_RADIUS.get();
-    private final int duration = ModCommonConfig.SUSPICIOUS_SLIME_ACIDITY_AREA_EFFECT_DURATION_TIME.get() *20;
+    private final int duration = ModCommonConfig.SUSPICIOUS_SLIME_ACIDITY_AREA_EFFECT_DURATION_TIME.get() * 20;
     private Vec3 moveLand;
     public static AcidityBall Create(EntityType<? extends AcidityBall> acidity  , Level p_36834_){
         return new AcidityBall(EntityRegister.ACIDITY.get(),p_36834_);
@@ -46,7 +47,7 @@ public class AcidityBall extends AbstractHurtingProjectile {
                 }
 
                 areaeffectcloud.setParticle(ParticleTypes.DRAGON_BREATH);
-                areaeffectcloud.setRadius(radius);
+                areaeffectcloud.setRadius(entity instanceof SuspiciousSlime suspiciousSlime? radius * suspiciousSlime.getSize() / 4 : radius);
                 areaeffectcloud.setDuration(duration);
                 areaeffectcloud.setRadiusPerTick((7.0F - areaeffectcloud.getRadius()) / (float)areaeffectcloud.getDuration());
                 areaeffectcloud.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN,20,2));

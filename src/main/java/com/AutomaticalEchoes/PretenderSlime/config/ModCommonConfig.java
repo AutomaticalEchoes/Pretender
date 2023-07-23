@@ -6,13 +6,13 @@ public class ModCommonConfig {
     public static final ForgeConfigSpec.Builder BUILDER=new ForgeConfigSpec.Builder();
     public static final ForgeConfigSpec SPEC;
 
-
     public static final ForgeConfigSpec.ConfigValue<Integer> SUSPICIOUS_SLIME_ACIDITY_AREA_EFFECT_RADIUS;
     public static final ForgeConfigSpec.ConfigValue<Integer> SUSPICIOUS_SLIME_ACIDITY_AREA_EFFECT_DURATION_TIME;
     public static final ForgeConfigSpec.ConfigValue<Integer> SUSPICIOUS_SLIME_ACIDITY_DISTANCE;
     public static final ForgeConfigSpec.ConfigValue<Integer> SUSPICIOUS_SLIME_WANT_COLLECT_TICK;
     public static final ForgeConfigSpec.ConfigValue<Integer> SUSPICIOUS_SLIME_TRANSLATE_TICK;
     public static final ForgeConfigSpec.ConfigValue<Integer> SUSPICIOUS_SLIME_BASE_CREATE_SLIME_TICK;
+
 
 
     static {
