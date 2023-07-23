@@ -19,11 +19,11 @@ public class PretenderBase {
 
     public static final String MOD_ID = "pretender";
     public static final CreativeModeTab PRETENDER_ITEM_TAB = new CreativeModeTab("Pretender") {
-        @Override
         public ItemStack makeIcon() {
             return Items.CREEPER_BANNER_PATTERN.getDefaultInstance();
         }
     };
+
     public PretenderBase()
     {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
